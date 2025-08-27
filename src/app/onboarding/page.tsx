@@ -11,7 +11,8 @@ export default function OnboardingPage() {
   const searchParams = useSearchParams();
   const [userRole, setUserRole] = useState<
     "PROJECT_MANAGER" | "DEVELOPER" | null
-  >(null);
+  >("DEVELOPER");
+
   const { userData } = useSupabase();
   useEffect(() => {
     if (!userData) return;
