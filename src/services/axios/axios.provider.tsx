@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo } from "react";
 import { AxiosContext } from "./axios.context";
-import axios, { type AxiosInstance } from "axios";
+import axios, { type AxiosInstance, type AxiosError } from "axios";
 import {
   DEFAULT_SERVICES,
   DEFAULT_HEADERS,
@@ -17,6 +17,10 @@ export const AxiosProvider = ({ children }: AxiosProviderProps) => {
   const [instances, setInstances] = React.useState<Map<string, AxiosInstance>>(
     new Map(),
   );
+  const [retryAttempts, setRetryAttempts] = React.useState(0);
+  const [refreshTokenCallback, setRefreshTokenCallback] = React.useState<
+    (() => Promise<string | null>) | null
+  >(null);
 
   const axiosInstance = useMemo(() => {
     const instance = axios.create({
@@ -24,18 +28,67 @@ export const AxiosProvider = ({ children }: AxiosProviderProps) => {
       headers: DEFAULT_HEADERS,
     });
 
-    instance.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (error.response?.status === 401) {
-          console.warn("[v0] Unauthorized request detected");
-        }
-        return Promise.reject(error);
-      },
-    );
-
     return instance;
   }, []);
+
+  const setupInterceptors = React.useCallback(
+    (instance: AxiosInstance, serviceName?: string) => {
+      // Clear existing interceptors
+      instance.interceptors.request.clear();
+      instance.interceptors.response.clear();
+      instance.interceptors.request.use(
+        async (config) => {
+          // Token will be set by updateAllInstancesWithToken method
+          return config;
+        },
+        (error) => Promise.reject(error),
+      );
+
+      instance.interceptors.response.use(
+        (response) => response,
+        async (error: AxiosError) => {
+          if (
+            error.response?.status === 401 &&
+            retryAttempts < 3 &&
+            refreshTokenCallback
+          ) {
+            console.log(
+              `[v0] Token expired, attempting refresh for ${serviceName || "base"} service`,
+            );
+
+            try {
+              const newToken = await refreshTokenCallback();
+
+              if (newToken && error.config) {
+                // Update the failed request with new token
+                error.config.headers.Authorization = `Bearer ${newToken}`;
+
+                setRetryAttempts((prev) => prev + 1);
+
+                // Retry the original request
+                return instance(error.config);
+              }
+            } catch (refreshError) {
+              console.error(
+                `[v0] Token refresh failed for ${serviceName || "base"} service:`,
+                refreshError,
+              );
+              setRetryAttempts(0);
+              return Promise.reject(error);
+            }
+          }
+
+          // Reset retry attempts on successful response or non-401 errors
+          if (error.response?.status !== 401) {
+            setRetryAttempts(0);
+          }
+
+          return Promise.reject(error);
+        },
+      );
+    },
+    [retryAttempts, refreshTokenCallback],
+  );
 
   const createAxiosInstance = React.useCallback(
     (name: string, config?: Partial<ServiceConfig>) => {
@@ -55,21 +108,10 @@ export const AxiosProvider = ({ children }: AxiosProviderProps) => {
         },
       });
 
-      instance.interceptors.response.use(
-        (response) => response,
-        (error) => {
-          if (error.response?.status === 401) {
-            console.warn(
-              `[v0] Unauthorized request detected in ${name} service`,
-            );
-          }
-          return Promise.reject(error);
-        },
-      );
-
+      setupInterceptors(instance, name);
       return instance;
     },
-    [],
+    [setupInterceptors],
   );
 
   useEffect(() => {
@@ -83,6 +125,10 @@ export const AxiosProvider = ({ children }: AxiosProviderProps) => {
     setInstances(newInstances);
   }, [createAxiosInstance]);
 
+  useEffect(() => {
+    setupInterceptors(axiosInstance);
+  }, [axiosInstance, setupInterceptors]);
+
   const getAxiosInstance = React.useCallback(
     (name: string) => {
       return instances.get(name);
@@ -92,33 +138,28 @@ export const AxiosProvider = ({ children }: AxiosProviderProps) => {
 
   const updateAllInstancesWithToken = React.useCallback(
     (token: string | null) => {
-      // Update base instance
-      axiosInstance.interceptors.request.clear();
-      axiosInstance.interceptors.request.use(
-        (config) => {
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-          }
-          return config;
-        },
-        (error) => Promise.reject(error),
-      );
+      if (token) {
+        axiosInstance.defaults.headers.Authorization = `Bearer ${token}`;
+      } else {
+        delete axiosInstance.defaults.headers.Authorization;
+      }
 
-      // Update all service instances
       instances.forEach((instance) => {
-        instance.interceptors.request.clear();
-        instance.interceptors.request.use(
-          (config) => {
-            if (token) {
-              config.headers.Authorization = `Bearer ${token}`;
-            }
-            return config;
-          },
-          (error) => Promise.reject(error),
-        );
+        if (token) {
+          instance.defaults.headers.Authorization = `Bearer ${token}`;
+        } else {
+          delete instance.defaults.headers.Authorization;
+        }
       });
     },
     [axiosInstance, instances],
+  );
+
+  const setTokenRefreshCallback = React.useCallback(
+    (callback: () => Promise<string | null>) => {
+      setRefreshTokenCallback(() => callback);
+    },
+    [],
   );
 
   const userAxios = instances.get("user") || axiosInstance;
@@ -133,7 +174,8 @@ export const AxiosProvider = ({ children }: AxiosProviderProps) => {
     createAxiosInstance,
     getAxiosInstance,
     instances,
-    updateAllInstancesWithToken, // Added method to context
+    updateAllInstancesWithToken,
+    setTokenRefreshCallback, // Added method to set refresh callback
   };
 
   return (

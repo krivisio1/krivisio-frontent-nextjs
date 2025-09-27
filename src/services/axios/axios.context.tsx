@@ -12,4 +12,5 @@ export const AxiosContext = React.createContext<Axiostype>({
   getAxiosInstance: () => undefined,
   instances: new Map(),
   updateAllInstancesWithToken: () => {},
+  setTokenRefreshCallback: () => {},
 });

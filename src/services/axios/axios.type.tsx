@@ -25,6 +25,7 @@ export interface Axiostype {
   // Available instances
   instances: Map<string, AxiosInstance>;
   updateAllInstancesWithToken: (token: string | null) => void;
+  setTokenRefreshCallback: (callback: () => Promise<string | null>) => void;
 }
 
 export interface AxiosProviderProps {
