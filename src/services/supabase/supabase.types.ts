@@ -12,6 +12,7 @@ export type SupabaseContextType = {
   signInWithGithub: () => Promise<void>;
   userData: any;
   isLoadingUserData: boolean;
+  accessToken?: string;
   // isAuthorized: (requiredRoles?: string | string[]) => boolean;
 };
 
