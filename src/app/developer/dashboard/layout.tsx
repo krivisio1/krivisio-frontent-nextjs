@@ -1,5 +1,5 @@
 "use client";
-import { Sidebar } from "@/components/developer-dashboard/Sidebar";
+import { Sidebar } from "./partials/Sidebar";
 import { useSupabase } from "@/services/supabase/supabase.hook";
 
 export default function DashboardLayout({

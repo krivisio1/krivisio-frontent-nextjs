@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import DecorativeHeading from "@/components/common/DecorativeHeading";
-import ProfileSetup from "@/components/onboarding/ProfileSetup";
-import TeamInvite from "@/components/onboarding/TeamInvite";
+import ProfileSetup from "./partials/ProfileSetup";
+import TeamInvite from "./partials/TeamInvite";
 import { useSupabase } from "@/services/supabase/supabase.hook";
 
 export default function OnboardingPage() {
