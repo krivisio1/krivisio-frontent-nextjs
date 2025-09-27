@@ -1,8 +1,15 @@
-"use client"
-import React from 'react'
-import { Axiostype } from './axios.type'
-import { AxiosInstance } from 'axios'
+"use client";
+import React from "react";
+import type { Axiostype } from "./axios.type";
+import type { AxiosInstance } from "axios";
 
 export const AxiosContext = React.createContext<Axiostype>({
-    axios: {} as AxiosInstance
-})
+  axiosInstance: {} as AxiosInstance,
+  userAxios: {} as AxiosInstance,
+  authAxios: {} as AxiosInstance,
+  apiAxios: {} as AxiosInstance,
+  createAxiosInstance: () => ({}) as AxiosInstance,
+  getAxiosInstance: () => undefined,
+  instances: new Map(),
+  updateAllInstancesWithToken: () => {},
+});

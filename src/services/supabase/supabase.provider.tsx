@@ -1,14 +1,14 @@
 "use client";
-import React, { useEffect, useState, useTransition } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { SupabaseContext } from "./supabase.context";
 import { useQuery } from "@tanstack/react-query";
-import { AuthApiError, Session } from "@supabase/supabase-js";
-import { useAxios } from "../axios/axios.hook";
-import { AxiosError } from "axios";
+import { AuthApiError, type Session } from "@supabase/supabase-js";
 import { supabaseClient } from "./supabaseClient";
 import { toast } from "react-toastify";
 import { UseUserContext } from "@/app/providers/userProvider/user.context";
 import { useRouter } from "next/navigation";
+import { useAxios } from "../axios/axios.hook";
 
 export function SupabaseNewProvider({
   children,
@@ -16,12 +16,13 @@ export function SupabaseNewProvider({
   children: React.ReactNode;
 }) {
   const [retryAttempts, setRetryAttempts] = useState(0);
-  const { axios } = useAxios();
   const { saveUser, getUserByEmail, createIfNotExist, getUserBySupabaseId } =
     UseUserContext();
   const [userData, setUserData] = useState<null | any>(null);
   const [isLoadingUserData, setIsLoadingUserData] = useState(true);
   const router = useRouter();
+
+  const { updateAllInstancesWithToken } = useAxios();
 
   const {
     data: { supabase, session } = {},
@@ -37,50 +38,10 @@ export function SupabaseNewProvider({
     },
   });
 
-  if (session?.access_token) {
-    axios.interceptors.request.use(async (config) => {
-      const client = supabaseClient;
-      const { data } = await client.auth.getSession();
-      const token = data?.session?.access_token;
-      if (token) {
-        axios.defaults.headers["Authorization"] = `Bearer ${token}`;
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-
-      return config;
-    });
-    axios.interceptors.response.use(
-      async (response) => {
-        return response;
-      },
-      async (error: AxiosError) => {
-        if (error.response) {
-          const statusCode = error.response.status;
-          if (statusCode === 401 && retryAttempts < 4) {
-            const newToken = await refetch();
-
-            if (newToken) {
-              axios.defaults.headers["Authorization"] = `Bearer ${newToken}`;
-
-              setRetryAttempts((prev) => prev + 1);
-              if (error.config) {
-                return axios(error.config);
-              }
-            }
-          }
-
-          // For other HTTP errors (non-401), handle custom error logic
-          const customErrorMessage =
-            (error.response?.data as { meta?: { message?: string } })?.meta
-              ?.message ?? error.message;
-          throw new AxiosError(customErrorMessage);
-        }
-
-        // If there's no response from the server (network error or similar), throw a generic error
-        throw error;
-      },
-    );
-  }
+  useEffect(() => {
+    const token = session?.access_token || null;
+    updateAllInstancesWithToken(token);
+  }, [session?.access_token, updateAllInstancesWithToken]);
 
   const refetch = async () => {
     if (supabase) {
@@ -89,6 +50,7 @@ export function SupabaseNewProvider({
       return data?.session?.access_token;
     }
   };
+
   const logout = async () => {
     if (supabase) {
       await supabase.auth.signOut({
@@ -108,18 +70,14 @@ export function SupabaseNewProvider({
       return;
     }
 
-    // ✅ Check if user exists first
     try {
       const existingUser = await getUserByEmail(email);
       if (existingUser) {
         toast.error("User already exists. Please log in.");
         return;
       }
-    } catch (error: any) {
-      // If error means user not found, continue signup
-    }
+    } catch (error: any) {}
 
-    // ✅ Create Supabase account
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) {
       toast.error(error.message);
@@ -160,9 +118,9 @@ export function SupabaseNewProvider({
 
     if (error) {
       if (error instanceof AuthApiError) {
-        toast.error(error.message); // Supabase-specific auth error
+        toast.error(error.message);
       } else {
-        toast.error("Something went wrong"); // Generic error
+        toast.error("Something went wrong");
       }
       return;
     }
@@ -184,6 +142,7 @@ export function SupabaseNewProvider({
       },
     });
   }
+
   async function signInWithGithub() {
     const redirectTo = `${window.location.origin}/auth/callback`;
     if (!supabase) {
@@ -236,6 +195,7 @@ export function SupabaseNewProvider({
         signUpWithEmail,
         userData,
         isLoadingUserData,
+        accessToken: session?.access_token || undefined,
       }}
     >
       {children}
