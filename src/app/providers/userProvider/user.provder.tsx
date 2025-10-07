@@ -4,9 +4,18 @@ import { UserContext } from "./user.context";
 import { useAxios } from "@/services/axios/axios.hook";
 
 import { toast } from "react-toastify";
+import { getUser } from "./user.api";
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const { axios } = useAxios();
 
-  return <UserContext.Provider value={{}}>{children}</UserContext.Provider>;
+  async function getUserDetails() {
+    const res = await getUser(axios);
+  }
+
+  return (
+    <UserContext.Provider value={{ getUserDetails }}>
+      {children}
+    </UserContext.Provider>
+  );
 }

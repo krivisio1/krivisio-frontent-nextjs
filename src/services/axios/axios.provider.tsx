@@ -1,13 +1,7 @@
 "use client";
-import React, { useEffect, useMemo } from "react";
+import React from "react";
 import { AxiosContext } from "./axios.context";
-import axios, { type AxiosInstance, type AxiosError } from "axios";
-import {
-  DEFAULT_SERVICES,
-  DEFAULT_HEADERS,
-  DEFAULT_TIMEOUT,
-} from "./axiox.constant";
-import type { ServiceConfig } from "./axios.type";
+import axios from "axios";
 
 interface AxiosProviderProps {
   children: React.ReactNode;
@@ -23,7 +17,7 @@ export const AxiosProvider: React.FC<AxiosProviderProps> = ({ children }) => {
   });
 
   return (
-    <AxiosContext.Provider value={{ axiosInstance: axios }}>
+    <AxiosContext.Provider value={{ axios: axiosInstance }}>
       {children}
     </AxiosContext.Provider>
   );
