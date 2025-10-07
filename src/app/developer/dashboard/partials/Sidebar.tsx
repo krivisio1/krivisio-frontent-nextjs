@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
+import { useSupabase } from "@/services/supabase/supabase.hook";
 import { Home, BarChart3, Calendar, User, LogOut } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const sidebarIcons = [
   { icon: Home, url: "/developer/dashboard" },
@@ -13,6 +14,11 @@ const sidebarIcons = [
 
 export const Sidebar = () => {
   const pathname = usePathname();
+  const { logout } = useSupabase();
+  const router = useRouter();
+  function handleLogout() {
+    logout();
+  }
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-16 bg-[#161C28] flex flex-col justify-between items-center py-4">
@@ -30,7 +36,7 @@ export const Sidebar = () => {
       <nav className="flex flex-col gap-8 flex-1">
         {sidebarIcons.map(({ icon: Icon, url }, i) => {
           const isActive = pathname === url;
-          
+
           return (
             <Link
               key={i}
@@ -51,7 +57,7 @@ export const Sidebar = () => {
           <User size={20} />
         </button>
         <button className="text-[#FBFBFB] text-2xl hover:text-[#FB5711] p-2">
-          <LogOut size={20} />
+          <LogOut size={20} onClick={handleLogout} />
         </button>
       </div>
     </aside>

@@ -14,6 +14,7 @@ export default function ChooseRolePage() {
 
   const { session, refreshSession, userData, updateUserRole } = useSupabase();
   const router = useRouter();
+
   const handleContinue = async (role: "PROJECT_MANAGER" | "DEVELOPER") => {
     setSelectedRole(role);
 
@@ -22,6 +23,11 @@ export default function ChooseRolePage() {
     refreshSession();
   };
 
+  useEffect(() => {
+    if (!session) router.replace("/auth/login");
+  }, [session]);
+
+  if (!session) return <>loading....</>;
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4 relative">
       {/* Dotted Background */}

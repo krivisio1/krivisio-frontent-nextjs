@@ -5,18 +5,27 @@ import { useAxios } from "@/services/axios/axios.hook";
 
 import { toast } from "react-toastify";
 import { getUser } from "./user.api";
+import { useQuery } from "@tanstack/react-query";
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const { axios } = useAxios();
 
-  async function getUserDetails() {
-    const res = await getUser(axios);
-
-    return res;
-  }
+  const {
+    data: userData = null,
+    isFetching: isUserDataloading,
+    refetch: refetchUserData,
+  } = useQuery({
+    queryKey: ["userdata-fetch"],
+    queryFn: async () => {
+      const res = await getUser(axios);
+      return res;
+    },
+  });
 
   return (
-    <UserContext.Provider value={{ getUserDetails }}>
+    <UserContext.Provider
+      value={{ userData, isUserDataloading, refetchUserData }}
+    >
       {children}
     </UserContext.Provider>
   );

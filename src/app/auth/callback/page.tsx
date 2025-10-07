@@ -8,7 +8,6 @@ import { UseUserContext } from "@/app/providers/userProvider/user.context";
 export default function CallbackPage() {
   const router = useRouter();
   const { session, supabase } = useSupabase();
-  const { saveUser } = UseUserContext();
 
   useEffect(() => {
     const postAuthOperation = async () => {
@@ -17,7 +16,7 @@ export default function CallbackPage() {
         return;
       }
 
-      router.replace("/auth/choose-role");
+      // router.replace("/auth/choose-role");
     };
 
     postAuthOperation();

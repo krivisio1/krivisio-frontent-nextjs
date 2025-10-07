@@ -15,6 +15,8 @@ export default function DashboardLayout({
     role: ["PROJECT_MANAGER"],
   });
 
+  if (isLoading || !authorised) return <div>Loading...</div>;
+
   return (
     <div className="flex bg-gray-50">
       <ExactSidebar />

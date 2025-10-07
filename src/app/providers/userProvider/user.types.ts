@@ -1,3 +1,7 @@
+export type userData = {};
 export type UserContextType = {
-  getUserDetails: () => Promise<any>;
+  userData: any;
+  isUserDataloading: boolean;
+  refetchUserData: () => void;
+  // fetchUserData: () => void;
 };

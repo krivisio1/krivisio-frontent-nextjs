@@ -13,6 +13,8 @@ export default function DashboardLayout({
     role: ["DEVELOPER"],
   });
 
+  if (!authorised || isLoading) return <div>Loading...</div>;
+
   return (
     <div className="flex bg-white min-h-screen">
       <Sidebar />

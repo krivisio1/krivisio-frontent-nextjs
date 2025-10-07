@@ -84,8 +84,6 @@ export default function CreateProjectPage() {
         features: featureArr,
         tech_stacks: techStackArr,
       });
-
-      console.log(res);
     });
 
     // API submission here

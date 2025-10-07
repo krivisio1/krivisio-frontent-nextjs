@@ -13,19 +13,25 @@ export function useSupabase(props?: PropsHook) {
     throw new Error("no context find");
   }
 
-  console.log(props?.role);
-
   const authorised = !!(
     props?.role && props.role.includes(context?.userData?.role)
   );
+
   useEffect(() => {
-    console.log("anisole", context?.userData?.role, context.isLoadingUserData);
     if (!props?.required || context.isLoading) return;
-    if (context.isLoadingUserData) return;
+
+    if (context.isUserDataloading) return;
+
     if (!context.session || !authorised) {
       router.replace(props?.redirect ?? "/");
     }
-  }, [context.session, pathname, authorised, context.userData]);
+  }, [
+    context.session,
+    pathname,
+    authorised,
+    context.userData,
+    context.isUserDataloading,
+  ]);
 
   return { ...context, authorised };
 }

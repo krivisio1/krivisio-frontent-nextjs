@@ -15,7 +15,7 @@ export type SupabaseContextType = {
   signInWithGoogle: () => Promise<void>;
   signInWithGithub: () => Promise<void>;
   userData: any;
-  isLoadingUserData: boolean;
+  isUserDataloading: boolean;
   accessToken?: string;
   updateUserRole: (role: "PROJECT_MANAGER" | "DEVELOPER") => Promise<void>;
   // isAuthorized: (requiredRoles?: string | string[]) => boolean;

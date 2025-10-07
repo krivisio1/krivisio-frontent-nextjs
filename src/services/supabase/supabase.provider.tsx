@@ -19,8 +19,9 @@ export function SupabaseNewProvider({
 }) {
   const [retryAttempts, setRetryAttempts] = useState(0);
   const { axios } = useAxios();
-  const { getUserDetails } = UseUserContext();
-  const [userData, setUserData] = useState<null | any>(null);
+  // const [userDatas, setUserData] = useState<any>(null);
+  const { userData, isUserDataloading, refetchUserData } = UseUserContext();
+
   const [isLoadingUserData, setIsLoadingUserData] = useState(true);
   const router = useRouter();
 
@@ -33,55 +34,15 @@ export function SupabaseNewProvider({
     queryFn: async () => {
       const client = supabaseClient;
       const supabase = client;
+
       const { data } = await supabase.auth.getSession();
+
+      // const user = await fetchUserData();
+
+      // const sessionData = { ...data.session, dbUser: user };
       return { session: data.session as Session, supabase };
     },
   });
-
-  console.log({ userData });
-  if (session?.access_token) {
-    axios.interceptors.request.use(async (config) => {
-      const client = supabaseClient;
-      const { data } = await client.auth.getSession();
-      const token = data?.session?.access_token;
-      if (token) {
-        axios.defaults.headers["Authorization"] = `Bearer ${token}`;
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-
-      return config;
-    });
-    axios.interceptors.response.use(
-      async (response) => {
-        return response;
-      },
-      async (error: AxiosError) => {
-        if (error.response) {
-          const statusCode = error.response.status;
-
-          if (statusCode === 401 && retryAttempts < 4) {
-            const newToken = await refetch();
-
-            if (newToken) {
-              axios.defaults.headers["Authorization"] = `Bearer ${newToken}`;
-
-              setRetryAttempts((prev) => prev + 1);
-              if (error.config) {
-                return axios(error.config);
-              }
-            }
-          }
-
-          const customErrorMessage =
-            (error.response?.data as { meta?: { message?: string } })?.meta
-              ?.message ?? error.message;
-          throw new AxiosError(customErrorMessage);
-        }
-
-        throw error;
-      },
-    );
-  }
 
   const refetch = async () => {
     if (supabase) {
@@ -91,15 +52,30 @@ export function SupabaseNewProvider({
     }
   };
 
-  const logout = async () => {
-    if (supabase) {
-      await supabase.auth.signOut({
-        scope: "global",
-      });
+  const logout = useCallback(async () => {
+    try {
+      const client = supabaseClient; // use a fresh instance directly
+      const { error } = await client.auth.signOut({ scope: "global" });
 
-      await refetch();
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+
+      // Clear react-query session data
+      await refetchClient();
+      await refetchUserData();
+
+      // Optional: clear any axios tokens
+      delete axios.defaults.headers["Authorization"];
+
+      toast.success("Logged out successfully!");
+      router.replace("/auth/login"); // redirect user to login
+    } catch (err: any) {
+      console.error("Logout failed:", err);
+      toast.error("Logout failed. Please try again.");
     }
-  };
+  }, [router, axios, refetchClient, refetchUserData]);
 
   async function signUpWithEmail(
     name: string,
@@ -113,10 +89,11 @@ export function SupabaseNewProvider({
 
     try {
       const res = await signUpUser(name, email, password, axios);
+      refetchUserData();
       if (res.data) toast.success(res.data);
-      else toast.info(res.data.message);
+      else toast.info(res.meta.message);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || err.message);
+      toast.error(err?.response?.data?.meta?.message || err.message);
     }
   }
 
@@ -146,6 +123,10 @@ export function SupabaseNewProvider({
       email,
       password,
     });
+
+    if (data) {
+      refetchUserData();
+    }
 
     if (error) {
       if (
@@ -196,23 +177,54 @@ export function SupabaseNewProvider({
   }
 
   useEffect(() => {
-    async function getUser() {
-      setIsLoadingUserData(true);
-      try {
-        const userId = session?.user?.id;
-        if (!userId) return;
+    refetchUserData();
+  }, [session]);
 
-        try {
-          const res = await getUserDetails();
-          setUserData(res);
-        } catch (error: any) {}
-      } catch (error) {}
-      setIsLoadingUserData(false);
-    }
-    getUser();
-  }, [session, getUserDetails]);
+  useEffect(() => {
+    if (!session?.access_token) return;
 
-  console.log({ session });
+    const requestInterceptor = axios.interceptors.request.use(
+      async (config) => {
+        const client = supabaseClient;
+        const { data } = await client.auth.getSession();
+        const token = data?.session?.access_token;
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+    );
+
+    const responseInterceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error: AxiosError) => {
+        const statusCode = error.response?.status;
+
+        if (statusCode === 401 && retryAttempts < 2) {
+          const newToken = await refetch();
+          if (newToken) {
+            axios.defaults.headers["Authorization"] = `Bearer ${newToken}`;
+            setRetryAttempts((prev) => prev + 1);
+            if (error.config) {
+              error.config.headers.Authorization = `Bearer ${newToken}`;
+              return axios(error.config);
+            }
+          }
+        }
+
+        const customErrorMessage =
+          (error.response?.data as { meta?: { message?: string } })?.meta
+            ?.message ?? error.message;
+        throw new AxiosError(customErrorMessage);
+      },
+    );
+
+    return () => {
+      axios.interceptors.request.eject(requestInterceptor);
+      axios.interceptors.response.eject(responseInterceptor);
+    };
+  }, [session?.access_token]);
+
   return (
     <SupabaseContext.Provider
       value={{
@@ -226,7 +238,7 @@ export function SupabaseNewProvider({
         signInWithGithub,
         signUpWithEmail,
         userData,
-        isLoadingUserData,
+        isUserDataloading,
         updateUserRole,
         accessToken: session?.access_token || undefined,
       }}

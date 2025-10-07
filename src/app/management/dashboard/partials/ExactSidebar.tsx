@@ -20,9 +20,9 @@ const sidebarIcons = [
   { icon: Users, route: "/management/dashboard/team" },
 ];
 
-
 export const ExactSidebar = () => {
   const pathname = usePathname();
+  const { logout } = useSupabase();
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-18 bg-[#161C28] flex flex-col justify-between items-center py-6 px-4">
@@ -38,7 +38,6 @@ export const ExactSidebar = () => {
             />
           </div>
         </Link>
-
       </div>
 
       <nav className="flex flex-col gap-8 flex-1">
@@ -70,8 +69,7 @@ export const ExactSidebar = () => {
 
         <button
           onClick={() => {
-            // Handle logout logic here
-            console.log("Logout clicked");
+            logout();
           }}
           className="text-[#FBFBFB] text-2xl hover:text-[#FB5711] p-2"
         >
