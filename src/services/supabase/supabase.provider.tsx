@@ -9,6 +9,7 @@ import { supabaseClient } from "./supabaseClient";
 import { toast } from "react-toastify";
 import { UseUserContext } from "@/app/providers/userProvider/user.context";
 import { useRouter } from "next/navigation";
+import { signUpUser } from "./supabase.api";
 
 export function SupabaseNewProvider({
   children,
@@ -17,8 +18,6 @@ export function SupabaseNewProvider({
 }) {
   const [retryAttempts, setRetryAttempts] = useState(0);
   const { axios } = useAxios();
-  const { saveUser, getUserByEmail, createIfNotExist, getUserBySupabaseId } =
-    UseUserContext();
   const [userData, setUserData] = useState<null | any>(null);
   const [isLoadingUserData, setIsLoadingUserData] = useState(true);
   const router = useRouter();
@@ -69,14 +68,12 @@ export function SupabaseNewProvider({
             }
           }
 
-          // For other HTTP errors (non-401), handle custom error logic
           const customErrorMessage =
             (error.response?.data as { meta?: { message?: string } })?.meta
               ?.message ?? error.message;
           throw new AxiosError(customErrorMessage);
         }
 
-        // If there's no response from the server (network error or similar), throw a generic error
         throw error;
       },
     );
@@ -103,36 +100,24 @@ export function SupabaseNewProvider({
       toast.warn("Credentials are missing");
       return;
     }
-    if (!supabase) {
-      toast.info("Try again later");
-      return;
-    }
-
-    // ✅ Check if user exists first
-    try {
-      const existingUser = await getUserByEmail(email);
-      if (existingUser) {
-        toast.error("User already exists. Please log in.");
-        return;
-      }
-    } catch (error: any) {
-      // If error means user not found, continue signup
-    }
-
-    // ✅ Create Supabase account
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
 
     try {
-      await saveUser(data.user?.id, data?.user?.email);
-      toast.success("User created! Proceed to login.");
-      router.push("/auth/login");
-    } catch (error) {
-      console.error(error);
-      toast.error("Error creating user. Try again later.");
+      const res = await signUpUser(email, password, axios);
+      if (res.data) toast.success(res.data);
+      else toast.info(res.data.message);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err.message);
+    }
+  }
+
+  async function updateUserRole(role: "PROJECT_MANAGER" | "DEVELOPER") {
+    try {
+      const res = await changeRole(axios, role);
+      if (res.data) toast.success(res.data);
+      else toast.info(res.meta.message);
+      return res.data;
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err.message);
     }
   }
 

@@ -8,7 +8,7 @@ export const AxiosProvider = ({ children }: { children: React.ReactNode }) => {
   const [urltype, seturltype] = React.useState(0);
 
   const axiosInstance = axios.create({
-    baseURL: AxiosUrls[urltype].url,
+    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://krivisio-api.localhost",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
