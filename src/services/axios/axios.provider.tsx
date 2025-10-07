@@ -1,12 +1,19 @@
 "use client";
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import { AxiosContext } from "./axios.context";
-import axios from "axios";
-import { AxiosUrls } from "./axiox.constant";
+import axios, { type AxiosInstance, type AxiosError } from "axios";
+import {
+  DEFAULT_SERVICES,
+  DEFAULT_HEADERS,
+  DEFAULT_TIMEOUT,
+} from "./axiox.constant";
+import type { ServiceConfig } from "./axios.type";
 
-export const AxiosProvider = ({ children }: { children: React.ReactNode }) => {
-  const [urltype, seturltype] = React.useState(0);
+interface AxiosProviderProps {
+  children: React.ReactNode;
+}
 
+export const AxiosProvider: React.FC<AxiosProviderProps> = ({ children }) => {
   const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL || "http://krivisio-api.localhost",
     headers: {
@@ -16,7 +23,7 @@ export const AxiosProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   return (
-    <AxiosContext.Provider value={{ axios: axiosInstance }}>
+    <AxiosContext.Provider value={{ axiosInstance: axios }}>
       {children}
     </AxiosContext.Provider>
   );

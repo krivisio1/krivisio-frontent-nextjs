@@ -1,26 +1,44 @@
 "use client";
-import React, { useEffect, useState, useTransition } from "react";
+import type React from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { SupabaseContext } from "./supabase.context";
 import { useQuery } from "@tanstack/react-query";
-import { AuthApiError, Session } from "@supabase/supabase-js";
-import { useAxios } from "../axios/axios.hook";
-import { AxiosError } from "axios";
+import { AuthApiError, type Session } from "@supabase/supabase-js";
 import { supabaseClient } from "./supabaseClient";
 import { toast } from "react-toastify";
 import { UseUserContext } from "@/app/providers/userProvider/user.context";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD
 import { signUpUser } from "./supabase.api";
+=======
+import { useAxios } from "../axios/axios.hook";
+>>>>>>> 62298878fa6f1d60d9bc8991849be0500ab6bd39
 
 export function SupabaseNewProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
+<<<<<<< HEAD
   const [retryAttempts, setRetryAttempts] = useState(0);
   const { axios } = useAxios();
+=======
+  const { saveUser, getUserByEmail, createIfNotExist, getUserBySupabaseId } =
+    UseUserContext();
+>>>>>>> 62298878fa6f1d60d9bc8991849be0500ab6bd39
   const [userData, setUserData] = useState<null | any>(null);
   const [isLoadingUserData, setIsLoadingUserData] = useState(true);
   const router = useRouter();
+
+  const { updateAllInstancesWithToken, setTokenRefreshCallback, userAxios } =
+    useAxios();
+
+  const updateTokenRef = useRef(updateAllInstancesWithToken);
+  const refetchClientRef = useRef<(() => Promise<any>) | null>(null);
+
+  useEffect(() => {
+    updateTokenRef.current = updateAllInstancesWithToken;
+  }, [updateAllInstancesWithToken]);
 
   const {
     data: { supabase, session } = {},
@@ -36,16 +54,23 @@ export function SupabaseNewProvider({
     },
   });
 
-  if (session?.access_token) {
-    axios.interceptors.request.use(async (config) => {
-      const client = supabaseClient;
-      const { data } = await client.auth.getSession();
-      const token = data?.session?.access_token;
-      if (token) {
-        axios.defaults.headers["Authorization"] = `Bearer ${token}`;
-        config.headers.Authorization = `Bearer ${token}`;
+  useEffect(() => {
+    refetchClientRef.current = refetchClient;
+  }, [refetchClient]);
+
+  const refreshTokenCallback = useCallback(async (): Promise<string | null> => {
+    if (!supabase) return null;
+
+    try {
+      console.log("[v0] Refreshing Supabase session...");
+      const { data, error } = await supabase.auth.refreshSession();
+
+      if (error) {
+        console.error("[v0] Token refresh failed:", error.message);
+        return null;
       }
 
+<<<<<<< HEAD
       return config;
     });
     axios.interceptors.response.use(
@@ -72,12 +97,41 @@ export function SupabaseNewProvider({
             (error.response?.data as { meta?: { message?: string } })?.meta
               ?.message ?? error.message;
           throw new AxiosError(customErrorMessage);
+=======
+      const newToken = data?.session?.access_token;
+      if (newToken) {
+        console.log("[v0] Token refreshed successfully");
+        updateTokenRef.current(newToken);
+        if (refetchClientRef.current) {
+          await refetchClientRef.current();
+>>>>>>> 62298878fa6f1d60d9bc8991849be0500ab6bd39
         }
+      }
 
+<<<<<<< HEAD
         throw error;
       },
     );
   }
+=======
+      return newToken || null;
+    } catch (error) {
+      console.error("[v0] Token refresh error:", error);
+      return null;
+    }
+  }, [supabase]);
+
+  useEffect(() => {
+    if (supabase) {
+      setTokenRefreshCallback(refreshTokenCallback);
+    }
+  }, [supabase, setTokenRefreshCallback, refreshTokenCallback]);
+
+  useEffect(() => {
+    const token = session?.access_token || null;
+    updateAllInstancesWithToken(token);
+  }, [session?.access_token, updateAllInstancesWithToken]);
+>>>>>>> 62298878fa6f1d60d9bc8991849be0500ab6bd39
 
   const refetch = async () => {
     if (supabase) {
@@ -86,11 +140,13 @@ export function SupabaseNewProvider({
       return data?.session?.access_token;
     }
   };
+
   const logout = async () => {
     if (supabase) {
       await supabase.auth.signOut({
         scope: "global",
       });
+      updateAllInstancesWithToken(null);
       await refetch();
     }
   };
@@ -100,6 +156,27 @@ export function SupabaseNewProvider({
       toast.warn("Credentials are missing");
       return;
     }
+<<<<<<< HEAD
+=======
+    if (!supabase) {
+      toast.info("Try again later");
+      return;
+    }
+
+    try {
+      const existingUser = await getUserByEmail(email);
+      if (existingUser) {
+        toast.error("User already exists. Please log in.");
+        return;
+      }
+    } catch (error: any) {}
+
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+>>>>>>> 62298878fa6f1d60d9bc8991849be0500ab6bd39
 
     try {
       const res = await signUpUser(email, password, axios);
@@ -145,9 +222,9 @@ export function SupabaseNewProvider({
 
     if (error) {
       if (error instanceof AuthApiError) {
-        toast.error(error.message); // Supabase-specific auth error
+        toast.error(error.message);
       } else {
-        toast.error("Something went wrong"); // Generic error
+        toast.error("Something went wrong");
       }
       return;
     }
@@ -169,6 +246,7 @@ export function SupabaseNewProvider({
       },
     });
   }
+
   async function signInWithGithub() {
     const redirectTo = `${window.location.origin}/auth/callback`;
     if (!supabase) {
@@ -184,8 +262,6 @@ export function SupabaseNewProvider({
     });
   }
 
-  console.log({ session });
-
   useEffect(() => {
     async function getUser() {
       setIsLoadingUserData(true);
@@ -193,7 +269,6 @@ export function SupabaseNewProvider({
         const userId = session?.user?.id;
         if (!userId) return;
 
-        console.log("userid", userId);
         try {
           const res = await getUserBySupabaseId(userId);
           setUserData(res);
@@ -204,9 +279,9 @@ export function SupabaseNewProvider({
       setIsLoadingUserData(false);
     }
     getUser();
-  }, [session]);
+  }, [session, getUserBySupabaseId, createIfNotExist]);
 
-  console.log({ userData });
+  console.log({ session });
   return (
     <SupabaseContext.Provider
       value={{
@@ -221,6 +296,7 @@ export function SupabaseNewProvider({
         signUpWithEmail,
         userData,
         isLoadingUserData,
+        accessToken: session?.access_token || undefined,
       }}
     >
       {children}
