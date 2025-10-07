@@ -1,5 +1,5 @@
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import PMHomePage from "./homepage";
+import { DashboardHeader } from "../partials/DashboardHeader";
+import PMHomePage from "./partials/homepage";
 
 export default function homePage() {
   return (
