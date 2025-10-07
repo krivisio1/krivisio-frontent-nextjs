@@ -12,13 +12,13 @@ export default function ChooseRolePage() {
     "PROJECT_MANAGER" | "DEVELOPER" | null
   >(null);
 
-  const { updateUserRole } = UseUserContext();
-  const { session, refreshSession, userData } = useSupabase();
+  const { session, refreshSession, userData, updateUserRole } = useSupabase();
   const router = useRouter();
   const handleContinue = async (role: "PROJECT_MANAGER" | "DEVELOPER") => {
     setSelectedRole(role);
 
-    await updateUserRole(session?.user?.id, role);
+    await updateUserRole(role);
+
     refreshSession();
   };
 

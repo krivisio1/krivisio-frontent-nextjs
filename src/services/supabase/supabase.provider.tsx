@@ -10,6 +10,7 @@ import { UseUserContext } from "@/app/providers/userProvider/user.context";
 import { useRouter } from "next/navigation";
 import { changeRole, signUpUser } from "./supabase.api";
 import { useAxios } from "../axios/axios.hook";
+import { AxiosError } from "axios";
 
 export function SupabaseNewProvider({
   children,
@@ -37,6 +38,51 @@ export function SupabaseNewProvider({
     },
   });
 
+  console.log({ userData });
+  if (session?.access_token) {
+    axios.interceptors.request.use(async (config) => {
+      const client = supabaseClient;
+      const { data } = await client.auth.getSession();
+      const token = data?.session?.access_token;
+      if (token) {
+        axios.defaults.headers["Authorization"] = `Bearer ${token}`;
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      return config;
+    });
+    axios.interceptors.response.use(
+      async (response) => {
+        return response;
+      },
+      async (error: AxiosError) => {
+        if (error.response) {
+          const statusCode = error.response.status;
+
+          if (statusCode === 401 && retryAttempts < 4) {
+            const newToken = await refetch();
+
+            if (newToken) {
+              axios.defaults.headers["Authorization"] = `Bearer ${newToken}`;
+
+              setRetryAttempts((prev) => prev + 1);
+              if (error.config) {
+                return axios(error.config);
+              }
+            }
+          }
+
+          const customErrorMessage =
+            (error.response?.data as { meta?: { message?: string } })?.meta
+              ?.message ?? error.message;
+          throw new AxiosError(customErrorMessage);
+        }
+
+        throw error;
+      },
+    );
+  }
+
   const refetch = async () => {
     if (supabase) {
       await refetchClient();
@@ -55,14 +101,18 @@ export function SupabaseNewProvider({
     }
   };
 
-  async function signUpWithEmail(email: string, password: string) {
-    if (!email.trim() || !password.trim()) {
+  async function signUpWithEmail(
+    name: string,
+    email: string,
+    password: string,
+  ) {
+    if (!email.trim() || !password.trim() || !name.trim()) {
       toast.warn("Credentials are missing");
       return;
     }
 
     try {
-      const res = await signUpUser(email, password, axios);
+      const res = await signUpUser(name, email, password, axios);
       if (res.data) toast.success(res.data);
       else toast.info(res.data.message);
     } catch (err: any) {
@@ -177,6 +227,7 @@ export function SupabaseNewProvider({
         signUpWithEmail,
         userData,
         isLoadingUserData,
+        updateUserRole,
         accessToken: session?.access_token || undefined,
       }}
     >

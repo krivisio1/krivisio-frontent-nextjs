@@ -11,6 +11,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   async function getUserDetails() {
     const res = await getUser(axios);
+
+    return res;
   }
 
   return (

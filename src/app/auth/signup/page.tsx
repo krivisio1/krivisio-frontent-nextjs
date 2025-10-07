@@ -13,13 +13,14 @@ import { useSupabase } from "@/services/supabase/supabase.hook";
 export default function AuthPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, startTransition] = useTransition();
   const { signUpWithEmail } = useSupabase();
 
   const handleSignup = () => {
     startTransition(async () => {
-      await signUpWithEmail(email, password);
+      await signUpWithEmail(name, email, password);
     });
   };
 
@@ -46,8 +47,20 @@ export default function AuthPage() {
           <div className="flex items-center justify-center mb-8">
             <img src="/logo2.svg" alt="logo" className="h-8" />
           </div>
-
-          {/* Email Input */}
+          {/* Email Input */}\
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Enter your name
+            </label>
+            <input
+              type="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="John doe"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FB5711] focus:border-[#FB5711] outline-none text-gray-900 placeholder-gray-400"
+              disabled={isLoading}
+            />
+          </div>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Enter your email
@@ -61,7 +74,6 @@ export default function AuthPage() {
               disabled={isLoading}
             />
           </div>
-
           {/* Password Input */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -81,7 +93,6 @@ export default function AuthPage() {
               }}
             />
           </div>
-
           {/* Sign Up Button */}
           <button
             onClick={handleSignup}
@@ -90,7 +101,6 @@ export default function AuthPage() {
           >
             {isLoading ? "Creating Account..." : "Sign Up"}
           </button>
-
           {/* Divider */}
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
@@ -100,7 +110,6 @@ export default function AuthPage() {
               <span className="px-2 bg-white text-gray-500">or</span>
             </div>
           </div>
-
           {/* Social Login Buttons */}
           {/* <div className="grid grid-cols-2 gap-3 mb-6">
             <button
@@ -123,7 +132,6 @@ export default function AuthPage() {
           <div className="mb-6">
             <Oauth />
           </div>
-
           {/* Login Link */}
           <div className="text-center">
             <p className="text-sm text-gray-600">
