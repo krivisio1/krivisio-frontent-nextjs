@@ -8,3 +8,12 @@ export const signUpUser = async (
   const res = await axios.post("/api/auth/sign-up", { email, password });
   return res?.data;
 };
+
+export async function changeRole(
+  axios: AxiosInstance,
+  role: "PROJECT_MANAGER" | "DEVELOPER",
+) {
+  const res = await axios.post(`/api/auth/change-role?role=` + role);
+
+  return res.data;
+}
