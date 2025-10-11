@@ -25,6 +25,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     });
   }
 
+  console.log({ isUserDataloading });
   return (
     <UserContext.Provider
       value={{ userData, isUserDataloading, fetchUserData }}

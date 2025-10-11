@@ -1,5 +1,5 @@
 export const USER_ROLES = {
-  AUTHENTICATED: "authenticated",
-  PROJECT_MANAGER: "project-manager",
-  DEVELOPER: "developer",
+  AUTHENTICATED: "AUTHENTICATED",
+  PROJECT_MANAGER: "PROJECT_MANAGER",
+  DEVELOPER: "DEVELOPER",
 };

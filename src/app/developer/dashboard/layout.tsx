@@ -2,6 +2,9 @@
 import { ScreenLoader } from "@/components/loader";
 import { Sidebar } from "./partials/Sidebar";
 import { useSupabase } from "@/services/supabase/supabase.hook";
+import { UseUserContext } from "@/app/providers/userProvider/user.context";
+import { useEffect } from "react";
+import { USER_ROLES } from "@/app/constant";
 
 export default function DashboardLayout({
   children,
@@ -14,7 +17,11 @@ export default function DashboardLayout({
     role: ["DEVELOPER"],
   });
 
-  if (isLoading || !authorised) return <ScreenLoader />;
+  const { userData, isUserDataloading } = UseUserContext({
+    required: true,
+  });
+
+  if (isLoading || !authorised || isUserDataloading) return <ScreenLoader />;
 
   return (
     <div className="flex bg-white min-h-screen">

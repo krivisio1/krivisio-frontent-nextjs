@@ -87,8 +87,10 @@ export function SupabaseNewProvider({
     try {
       const res = await signUpUser(name, email, password, axios);
       fetchUserData();
-      if (res.data) toast.success(res.data);
-      else toast.info(res.meta.message);
+      if (res.data) {
+        toast.success(res.data);
+        router.replace("/auth/login");
+      } else toast.info(res.meta.message);
     } catch (err: any) {
       toast.error(err?.response?.data?.meta?.message || err.message);
     }

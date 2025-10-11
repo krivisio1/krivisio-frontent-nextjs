@@ -5,3 +5,9 @@ export type UserContextType = {
   // refetchUserData: () => void;
   fetchUserData: () => void;
 };
+
+export type Propshook = {
+  role?: string;
+  redirect?: string;
+  required?: boolean;
+};

@@ -15,8 +15,6 @@ export default function CallbackPage() {
         router.replace("/auth/login");
         return;
       }
-
-      // router.replace("/auth/choose-role");
     };
 
     postAuthOperation();
