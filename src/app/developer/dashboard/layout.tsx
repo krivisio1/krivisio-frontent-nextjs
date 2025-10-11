@@ -1,4 +1,5 @@
 "use client";
+import { ScreenLoader } from "@/components/loader";
 import { Sidebar } from "./partials/Sidebar";
 import { useSupabase } from "@/services/supabase/supabase.hook";
 
@@ -13,7 +14,7 @@ export default function DashboardLayout({
     role: ["DEVELOPER"],
   });
 
-  if (!authorised || isLoading) return <div>Loading...</div>;
+  if (isLoading || !authorised) return <ScreenLoader />;
 
   return (
     <div className="flex bg-white min-h-screen">

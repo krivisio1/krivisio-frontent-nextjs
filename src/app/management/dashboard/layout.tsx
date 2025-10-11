@@ -3,6 +3,7 @@
 import { ChatBotProvider } from "@/app/providers/chatBotProvider/chatbot.provider";
 import { ExactSidebar } from "@/app/management/dashboard/partials/ExactSidebar";
 import { useSupabase } from "@/services/supabase/supabase.hook";
+import { ScreenLoader } from "@/components/loader";
 
 export default function DashboardLayout({
   children,
@@ -15,7 +16,7 @@ export default function DashboardLayout({
     role: ["PROJECT_MANAGER"],
   });
 
-  if (isLoading || !authorised) return <div>Loading...</div>;
+  if (isLoading || !authorised) return <ScreenLoader />;
 
   return (
     <div className="flex bg-gray-50">

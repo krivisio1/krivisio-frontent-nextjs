@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import DecorativeHeading from "@/components/common/DecorativeHeading";
 import { UseUserContext } from "@/app/providers/userProvider/user.context";
 import { useSupabase } from "@/services/supabase/supabase.hook";
+import { ScreenLoader } from "@/components/loader";
 
 export default function ChooseRolePage() {
   const [selectedRole, setSelectedRole] = useState<
@@ -27,7 +28,8 @@ export default function ChooseRolePage() {
     if (!session) router.replace("/auth/login");
   }, [session]);
 
-  if (!session) return <>loading....</>;
+  if (!session) return <ScreenLoader />;
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4 relative">
       {/* Dotted Background */}

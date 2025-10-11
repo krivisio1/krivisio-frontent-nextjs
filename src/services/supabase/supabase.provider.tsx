@@ -20,8 +20,6 @@ export function SupabaseNewProvider({
   const [retryAttempts, setRetryAttempts] = useState(0);
   const { axios } = useAxios();
   const { userData, isUserDataloading, fetchUserData } = UseUserContext();
-
-  const [isLoadingUserData, setIsLoadingUserData] = useState(true);
   const router = useRouter();
 
   const {
