@@ -1,6 +1,6 @@
-import { ExactSidebar } from "@/components/dashboard/ExactSidebar";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import PMHomePage from "@/components/dashboard/ExactMainContent";
+import { ExactSidebar } from "@/app/management/dashboard/partials/ExactSidebar";
+import { DashboardHeader } from "@/app/management/dashboard/partials/DashboardHeader";
+import PMHomePage from "@/app/management/dashboard/partials/ExactMainContent";
 
 export default function Dashboard() {
   return (

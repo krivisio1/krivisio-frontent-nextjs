@@ -1,5 +1,5 @@
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import CreateProjectPage from "./projectcreation";
+import { DashboardHeader } from "../partials/DashboardHeader";
+import CreateProjectPage from "./partials/projectcreation";
 import { Suspense } from "react";
 
 export default function ProjectCreationPage() {

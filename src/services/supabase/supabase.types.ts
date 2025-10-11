@@ -7,11 +7,17 @@ export type SupabaseContextType = {
   logout: () => void;
   refreshSession: () => void;
   signInWithPassword: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (
+    name: string,
+    email: string,
+    password: string,
+  ) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signInWithGithub: () => Promise<void>;
   userData: any;
-  isLoadingUserData: boolean;
+  isUserDataloading: boolean;
+  accessToken?: string;
+  updateUserRole: (role: "PROJECT_MANAGER" | "DEVELOPER") => Promise<void>;
   // isAuthorized: (requiredRoles?: string | string[]) => boolean;
 };
 

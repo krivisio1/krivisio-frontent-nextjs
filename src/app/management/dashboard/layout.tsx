@@ -1,7 +1,7 @@
 // app/(dashboard)/layout.tsx
 "use client";
 import { ChatBotProvider } from "@/app/providers/chatBotProvider/chatbot.provider";
-import { ExactSidebar } from "@/components/dashboard/ExactSidebar";
+import { ExactSidebar } from "@/app/management/dashboard/partials/ExactSidebar";
 import { useSupabase } from "@/services/supabase/supabase.hook";
 
 export default function DashboardLayout({
@@ -14,6 +14,8 @@ export default function DashboardLayout({
     redirect: "/auth/choose-role",
     role: ["PROJECT_MANAGER"],
   });
+
+  if (isLoading || !authorised) return <div>Loading...</div>;
 
   return (
     <div className="flex bg-gray-50">

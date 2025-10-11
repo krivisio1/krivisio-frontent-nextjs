@@ -17,7 +17,6 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetchChatbotResponse(axios, data);
 
-      console.log(res.structuredContent);
       setspecsSheet(res.structuredContent.document);
       router.push("/management/dashboard/specsheet");
     } catch (error) {

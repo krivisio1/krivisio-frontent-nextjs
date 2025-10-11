@@ -2,13 +2,14 @@
 import React from "react";
 import { AxiosContext } from "./axios.context";
 import axios from "axios";
-import { AxiosUrls } from "./axiox.constant";
 
-export const AxiosProvider = ({ children }: { children: React.ReactNode }) => {
-  const [urltype, seturltype] = React.useState(0);
+interface AxiosProviderProps {
+  children: React.ReactNode;
+}
 
+export const AxiosProvider: React.FC<AxiosProviderProps> = ({ children }) => {
   const axiosInstance = axios.create({
-    baseURL: AxiosUrls[urltype].url,
+    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://krivisio-api.localhost",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",

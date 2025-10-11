@@ -1,5 +1,5 @@
 "use client";
-import { Sidebar } from "@/components/developer-dashboard/Sidebar";
+import { Sidebar } from "./partials/Sidebar";
 import { useSupabase } from "@/services/supabase/supabase.hook";
 
 export default function DashboardLayout({
@@ -12,6 +12,8 @@ export default function DashboardLayout({
     redirect: "/auth/login",
     role: ["DEVELOPER"],
   });
+
+  if (!authorised || isLoading) return <div>Loading...</div>;
 
   return (
     <div className="flex bg-white min-h-screen">
