@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode } from "react";
+import { ReactNode, useState, useTransition } from "react";
 import { UserContext } from "./user.context";
 import { useAxios } from "@/services/axios/axios.hook";
 
@@ -9,22 +9,25 @@ import { useQuery } from "@tanstack/react-query";
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const { axios } = useAxios();
+  const [userData, setUserData] = useState(null);
+  const [isUserDataloading, startTransition] = useTransition();
 
-  const {
-    data: userData = null,
-    isFetching: isUserDataloading,
-    refetch: refetchUserData,
-  } = useQuery({
-    queryKey: ["userdata-fetch"],
-    queryFn: async () => {
-      const res = await getUser(axios);
-      return res;
-    },
-  });
+  async function fetchUserData() {
+    startTransition(async () => {
+      try {
+        const res = await getUser(axios);
+        setUserData(res);
+      } catch (error) {
+        // toast.error();
+        setUserData(null);
+        return;
+      }
+    });
+  }
 
   return (
     <UserContext.Provider
-      value={{ userData, isUserDataloading, refetchUserData }}
+      value={{ userData, isUserDataloading, fetchUserData }}
     >
       {children}
     </UserContext.Provider>

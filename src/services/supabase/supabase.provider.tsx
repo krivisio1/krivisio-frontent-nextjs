@@ -19,8 +19,7 @@ export function SupabaseNewProvider({
 }) {
   const [retryAttempts, setRetryAttempts] = useState(0);
   const { axios } = useAxios();
-  // const [userDatas, setUserData] = useState<any>(null);
-  const { userData, isUserDataloading, refetchUserData } = UseUserContext();
+  const { userData, isUserDataloading, fetchUserData } = UseUserContext();
 
   const [isLoadingUserData, setIsLoadingUserData] = useState(true);
   const router = useRouter();
@@ -64,7 +63,7 @@ export function SupabaseNewProvider({
 
       // Clear react-query session data
       await refetchClient();
-      await refetchUserData();
+      await fetchUserData();
 
       // Optional: clear any axios tokens
       delete axios.defaults.headers["Authorization"];
@@ -75,7 +74,7 @@ export function SupabaseNewProvider({
       console.error("Logout failed:", err);
       toast.error("Logout failed. Please try again.");
     }
-  }, [router, axios, refetchClient, refetchUserData]);
+  }, [router, axios, refetchClient, fetchUserData]);
 
   async function signUpWithEmail(
     name: string,
@@ -89,7 +88,7 @@ export function SupabaseNewProvider({
 
     try {
       const res = await signUpUser(name, email, password, axios);
-      refetchUserData();
+      fetchUserData();
       if (res.data) toast.success(res.data);
       else toast.info(res.meta.message);
     } catch (err: any) {
@@ -123,10 +122,6 @@ export function SupabaseNewProvider({
       email,
       password,
     });
-
-    if (data) {
-      refetchUserData();
-    }
 
     if (error) {
       if (
@@ -177,10 +172,6 @@ export function SupabaseNewProvider({
   }
 
   useEffect(() => {
-    refetchUserData();
-  }, [session]);
-
-  useEffect(() => {
     if (!session?.access_token) return;
 
     const requestInterceptor = axios.interceptors.request.use(
@@ -224,6 +215,11 @@ export function SupabaseNewProvider({
       axios.interceptors.response.eject(responseInterceptor);
     };
   }, [session?.access_token]);
+
+  useEffect(() => {
+    if (!session) null;
+    fetchUserData();
+  }, [session]);
 
   return (
     <SupabaseContext.Provider
