@@ -2,9 +2,41 @@
 
 import DecorativeHeading from "@/components/common/DecorativeHeading";
 import SkillsInput from "./partials/skillsInput";
+import { useForm, FormProvider } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+// ✅ Zod Schema for validation
+const profileSchema = z.object({
+    position: z.string().min(2, "Position must be at least 2 characters long"),
+    bio: z.string().min(10, "Bio should be at least 10 characters long"),
+    skills: z
+        .array(z.string().min(1, "Skill cannot be empty"))
+        .min(1, "Please add at least one skill"),
+});
+
+type ProfileForm = z.infer<typeof profileSchema>;
 
 export default function ProfileSetup() {
-    
+    const methods = useForm<ProfileForm>({
+        resolver: zodResolver(profileSchema),
+        defaultValues: {
+            position: "",
+            bio: "",
+            skills: [],
+        },
+    });
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = methods;
+
+    const onSubmit = (data: ProfileForm) => {
+        console.log("✅ Profile Data Submitted:", data);
+        // You can call your API here
+    };
 
     return (
         <div className="min-h-screen bg-white flex items-center justify-center p-4 relative">
@@ -33,37 +65,67 @@ export default function ProfileSetup() {
                         <img src="/logo2.svg" alt="logo" className="h-8" />
                     </div>
 
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Position
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Frontend,backend,DevOps,etc..."
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FB5711] focus:border-[#FB5711] outline-none text-gray-900 placeholder-gray-400"
-                        />
-                    </div>
+                    {/* ✅ Form Start */}
+                    <FormProvider {...methods}>
+                        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                            {/* Position */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Position
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Frontend, Backend, DevOps, etc..."
+                                    {...register("position")}
+                                    className={`w-full px-4 py-3 border ${errors.position ? "border-red-500" : "border-gray-300"
+                                        } rounded-lg focus:ring-2 focus:ring-[#FB5711] focus:border-[#FB5711] outline-none text-gray-900 placeholder-gray-400`}
+                                />
+                                {errors.position && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {errors.position.message}
+                                    </p>
+                                )}
+                            </div>
 
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Bio
-                        </label>
-                        <textarea
-                            rows={2}
-                            placeholder="A short bio about yourself"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FB5711] focus:border-[#FB5711] outline-none text-gray-900 placeholder-gray-400"
-                        />
-                    </div>
+                            {/* Bio */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Bio
+                                </label>
+                                <textarea
+                                    rows={2}
+                                    placeholder="A short bio about yourself"
+                                    {...register("bio")}
+                                    className={`w-full px-4 py-3 border ${errors.bio ? "border-red-500" : "border-gray-300"
+                                        } rounded-lg focus:ring-2 focus:ring-[#FB5711] focus:border-[#FB5711] outline-none text-gray-900 placeholder-gray-400`}
+                                />
+                                {errors.bio && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {errors.bio.message}
+                                    </p>
+                                )}
+                            </div>
 
-                    <div className="mb-4">
-                        <SkillsInput/>
-                    </div>
+                            {/* Skills Input */}
+                            <div className="mb-4">
+                                <SkillsInput />
+                                {errors.skills && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {errors.skills.message as string}
+                                    </p>
+                                )}
+                            </div>
 
-                    <button
-                        className="w-full bg-[#FB5711] hover:bg-orange-600 text-white font-medium py-3 px-4 rounded-lg text-center flex justify-center transition-colors mb-6"
-                    >
-                        Continue
-                    </button>
+                            {/* Submit Button */}
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="w-full bg-[#FB5711] hover:bg-orange-600 disabled:opacity-70 text-white font-medium py-3 px-4 rounded-lg text-center flex justify-center transition-colors mb-6"
+                            >
+                                {isSubmitting ? "Saving..." : "Continue"}
+                            </button>
+                        </form>
+                    </FormProvider>
                 </div>
             </div>
         </div>
