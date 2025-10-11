@@ -14,22 +14,24 @@ export function UseUserContext(props?: Propshook) {
   if (!ctx) throw new Error("use the hook inside the provider");
 
   useEffect(() => {
-    console.log(ctx.userData);
-    if (!props?.required || ctx.isUserDataloading) return;
+    if (ctx.isUserDataloading) return;
 
-    if (ctx.userData?.role == USER_ROLES.AUTHENTICATED) {
+    const role = ctx.userData?.role;
+    const devProfile = ctx.userData?.dev_profile;
+    const organization = ctx.userData?.organization;
+
+    if (role == USER_ROLES.AUTHENTICATED) {
       router.replace(props?.redirect ?? "/auth/choose-role");
-    } else if (
-      ctx.userData?.role == USER_ROLES.DEVELOPER &&
-      !ctx.userData?.dev_profile
-    ) {
+    } else if (role == USER_ROLES.DEVELOPER && !devProfile) {
       router.replace(props?.redirect ?? "/onboarding/setup-profile");
-    } else if (
-      ctx.userData?.role == USER_ROLES.PROJECT_MANAGER &&
-      !ctx.userData?.organization
-    ) {
+    } else if (role == USER_ROLES.DEVELOPER && devProfile) {
+      router.replace(props?.redirect ?? "/developer/dashboard");
+    } else if (role == USER_ROLES.PROJECT_MANAGER && !organization) {
       router.replace(props?.redirect ?? "/onboarding/new-org");
+    } else if (role == USER_ROLES.PROJECT_MANAGER && organization) {
+      router.replace(props?.redirect ?? "/management/dashboard");
     }
-  }, [ctx]);
+  }, [ctx.userData, ctx.isUserDataloading]);
+
   return ctx;
 }

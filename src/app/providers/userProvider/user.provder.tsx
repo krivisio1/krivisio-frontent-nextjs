@@ -4,8 +4,9 @@ import { UserContext } from "./user.context";
 import { useAxios } from "@/services/axios/axios.hook";
 
 import { toast } from "react-toastify";
-import { getUser } from "./user.api";
+import { getUser, saveDevProfile } from "./user.api";
 import { useQuery } from "@tanstack/react-query";
+import { ProfileForm } from "@/app/onboarding/setup-profile/profile.schema";
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const { axios } = useAxios();
@@ -25,10 +26,23 @@ export function UserProvider({ children }: { children: ReactNode }) {
     });
   }
 
-  console.log({ isUserDataloading });
+  async function saveUserDevProfile(data: ProfileForm) {
+    try {
+      const res = await saveDevProfile(axios, data);
+      if (!res.data) toast.error(res?.meta?.message);
+      else {
+        toast.success(res.data);
+      }
+    } catch (error: any) {
+      toast.error("Something went wrong, try again later");
+    } finally {
+      fetchUserData();
+    }
+  }
+
   return (
     <UserContext.Provider
-      value={{ userData, isUserDataloading, fetchUserData }}
+      value={{ userData, isUserDataloading, fetchUserData, saveUserDevProfile }}
     >
       {children}
     </UserContext.Provider>

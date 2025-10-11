@@ -34,9 +34,6 @@ export function SupabaseNewProvider({
 
       const { data } = await supabase.auth.getSession();
 
-      // const user = await fetchUserData();
-
-      // const sessionData = { ...data.session, dbUser: user };
       return { session: data.session as Session, supabase };
     },
   });

@@ -3,21 +3,13 @@
 import DecorativeHeading from "@/components/common/DecorativeHeading";
 import SkillsInput from "./partials/skillsInput";
 import { useForm, FormProvider } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-// ✅ Zod Schema for validation
-const profileSchema = z.object({
-  position: z.string().min(2, "Position must be at least 2 characters long"),
-  bio: z.string().min(10, "Bio should be at least 10 characters long"),
-  skills: z
-    .array(z.string().min(1, "Skill cannot be empty"))
-    .min(1, "Please add at least one skill"),
-});
-
-type ProfileForm = z.infer<typeof profileSchema>;
+import { ProfileForm, profileSchema } from "./profile.schema";
+import { UseUserContext } from "@/app/providers/userProvider/user.context";
 
 export default function ProfileSetup() {
+  const { saveUserDevProfile } = UseUserContext();
+
   const methods = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -34,9 +26,10 @@ export default function ProfileSetup() {
   } = methods;
 
   const onSubmit = (data: ProfileForm) => {
-    console.log("✅ Profile Data Submitted:", data);
-    // You can call your API here
+    saveUserDevProfile(data);
   };
+
+  console.log({ errors });
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4 relative">
