@@ -7,4 +7,6 @@ export type orgContextType = {
   orgMembers: any;
   invitations: any;
   isSkipped: boolean;
+  isInvitationfetching: boolean;
+  devInvitation: any;
 };

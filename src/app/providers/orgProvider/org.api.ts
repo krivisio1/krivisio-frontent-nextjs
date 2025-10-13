@@ -30,3 +30,8 @@ export async function getAllOrgInvitation(
 
   return res?.data?.data;
 }
+
+export async function getInvitationInfo(axios: AxiosInstance, name: string) {
+  const res = await axios.get("/api/org/invitation?name=" + name);
+  return res?.data?.data;
+}

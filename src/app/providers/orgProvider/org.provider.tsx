@@ -1,24 +1,36 @@
 "use client";
-import { ReactNode, useEffect, useState } from "react";
+import {
+  ReactNode,
+  startTransition,
+  useEffect,
+  useState,
+  useTransition,
+} from "react";
 import { OrgContext } from "./org.context";
 import { CreateOrgSchemaType } from "@/app/onboarding/new-org/org.schema";
 import {
   getAllOrgInvitation,
   getAllOrgMembers,
+  getInvitationInfo,
   saveOrganization,
 } from "./org.api";
 import { useAxios } from "@/services/axios/axios.context";
 import { toast } from "react-toastify";
 import { UseUserContext } from "../userProvider/user.context";
 import { USER_ROLES } from "@/app/constant";
+import { usePathname } from "next/navigation";
 
 export function OrganizationProvider({ children }: { children: ReactNode }) {
   const { axios } = useAxios();
   const { userData, fetchUserData } = UseUserContext();
 
+  const pathname = usePathname();
+
   const [orgMembers, setOrgMembers] = useState<any[] | null>([]);
   const [invitations, setInvitations] = useState<any[] | null>([]);
   const [isSkipped, setSkipped] = useState<boolean>(false);
+  const [devInvitation, setDevInvitaiton] = useState<any>(null);
+  const [isInvitationfetching, startInvitationFecthing] = useTransition();
 
   async function createOrganization(data: CreateOrgSchemaType) {
     try {
@@ -84,6 +96,30 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
     setSkipped(!!skipped);
   }, []);
 
+  useEffect(() => {
+    if (!pathname || !userData) return;
+
+    const pathParts = pathname.split("/"); // e.g. [ '', 'invite', 'some-org' ]
+
+    const isInvitePage = pathParts[1] === "invite" && pathParts.length === 3;
+    const dynamicOrgName = isInvitePage ? pathParts[2] : null;
+
+    startInvitationFecthing(async () => {
+      if (isInvitePage && dynamicOrgName) {
+        if (userData.role === USER_ROLES.DEVELOPER) {
+          try {
+            console.log({ dynamicOrgName });
+            const res = await getInvitationInfo(axios, dynamicOrgName);
+            if (res) setDevInvitaiton(res);
+          } catch (error: any) {
+            console.log(error);
+          }
+        }
+      }
+    });
+  }, [pathname, userData]);
+
+  console.log({ devInvitation });
   return (
     <OrgContext.Provider
       value={{
@@ -93,6 +129,8 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
         orgMembers,
         invitations,
         skipInvitePage,
+        isInvitationfetching,
+        devInvitation,
       }}
     >
       {children}

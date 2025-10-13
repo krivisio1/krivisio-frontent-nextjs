@@ -1,11 +1,9 @@
 import Profile from "../management/dashboard/profile/page";
 import Invitation from "./inviteTeamMember";
-import JoinWorkspace from "./joinWorkspace";
 
-export default function testing() {
+export default function Page() {
   return (
     <div>
-      {/*<JoinWorkspace />*/}
       <Invitation />
     </div>
   );

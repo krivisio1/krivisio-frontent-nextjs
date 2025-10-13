@@ -21,7 +21,7 @@ export function useOrgHook() {
 
     if (role === USER_ROLES.PROJECT_MANAGER && organization) {
       if (ctx.invitations.length <= 0 && !ctx.isSkipped) {
-        router.replace("/invite-page");
+        router.replace("/invite");
       } else {
         router.replace("/management/dashboard");
       }
