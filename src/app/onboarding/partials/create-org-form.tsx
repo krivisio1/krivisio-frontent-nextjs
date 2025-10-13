@@ -7,11 +7,12 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createOrgSchema, CreateOrgSchemaType } from "../new-org/org.schema";
+import { useOrgHook } from "@/app/providers/orgProvider/org.hook";
 
 export default function CreateOrg() {
   const router = useRouter();
   const [isLoading, startTransition] = useTransition();
-
+  const { createOrganization } = useOrgHook();
   const {
     register,
     handleSubmit,
@@ -22,7 +23,7 @@ export default function CreateOrg() {
 
   const onSubmit = (data: CreateOrgSchemaType) => {
     startTransition(async () => {
-      console.log("Submitted data:", data);
+      createOrganization(data);
     });
   };
 

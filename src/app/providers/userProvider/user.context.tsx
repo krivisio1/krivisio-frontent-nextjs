@@ -11,25 +11,23 @@ export function UseUserContext(props?: Propshook) {
   const ctx = useContext(UserContext);
   const router = useRouter();
 
-  if (!ctx) throw new Error("use the hook inside the provider");
+  if (!ctx)
+    throw new Error("UseUserContext must be used within UserContext.Provider");
 
   useEffect(() => {
     if (ctx.isUserDataloading) return;
 
-    const role = ctx.userData?.role;
-    const devProfile = ctx.userData?.dev_profile;
-    const organization = ctx.userData?.organization;
+    const { role, dev_profile, organization } = ctx.userData || {};
 
-    if (role == USER_ROLES.AUTHENTICATED) {
+    if (role === USER_ROLES.AUTHENTICATED) {
       router.replace(props?.redirect ?? "/auth/choose-role");
-    } else if (role == USER_ROLES.DEVELOPER && !devProfile) {
-      router.replace(props?.redirect ?? "/onboarding/setup-profile");
-    } else if (role == USER_ROLES.DEVELOPER && devProfile) {
-      router.replace(props?.redirect ?? "/developer/dashboard");
-    } else if (role == USER_ROLES.PROJECT_MANAGER && !organization) {
-      router.replace(props?.redirect ?? "/onboarding/new-org");
-    } else if (role == USER_ROLES.PROJECT_MANAGER && organization) {
-      router.replace(props?.redirect ?? "/management/dashboard");
+    } else if (role === USER_ROLES.DEVELOPER) {
+      if (!dev_profile)
+        router.replace(props?.redirect ?? "/onboarding/setup-profile");
+      else router.replace(props?.redirect ?? "/developer/dashboard");
+    } else if (role === USER_ROLES.PROJECT_MANAGER) {
+      if (!organization)
+        router.replace(props?.redirect ?? "/onboarding/new-org");
     }
   }, [ctx.userData, ctx.isUserDataloading]);
 
