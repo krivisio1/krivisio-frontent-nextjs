@@ -2,13 +2,19 @@
 
 import DecorativeHeading from "@/components/common/DecorativeHeading";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { JoinForm, joinSchema, JoinStatus } from "../invite.schema";
 import { useState } from "react";
+import { useOrgHook } from "@/app/providers/orgProvider/org.hook";
+import { ScreenLoader } from "@/components/loader";
+import { useRouter } from "next/navigation";
 
 export default function JoinWorkspace() {
   const [showDeclineConfirm, setShowDeclineConfirm] = useState(false);
+  const router = useRouter();
+
+  const { isInvitationfetching, devInvitation, respondToInvitation } =
+    useOrgHook();
 
   const {
     handleSubmit,
@@ -22,16 +28,21 @@ export default function JoinWorkspace() {
   });
 
   const onSubmit = (data: JoinForm) => {
-    console.log("Form submitted:", data);
-    setTimeout(() => {
-      reset();
-    }, 800);
+    if (!devInvitation) return;
+    respondToInvitation(data);
+    reset();
   };
 
   const confirmDecline = () => {
     handleSubmit(() => onSubmit({ status: JoinStatus.DECLINED }))();
     setShowDeclineConfirm(false);
   };
+
+  if (isInvitationfetching) return <ScreenLoader />;
+
+  const status = devInvitation?.status;
+
+  const alreadyResponded = status && status !== JoinStatus.PENDING;
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4 relative">
@@ -62,33 +73,50 @@ export default function JoinWorkspace() {
 
           {/* Organization Info */}
           <div className="mb-6 text-center">
-            <div className="text-2xl font-semibold">Organization Name</div>
+            <div className="text-2xl font-semibold">
+              {devInvitation?.organization?.name ?? ""}
+            </div>
             <div className="text-sm text-gray-600">
-              Owned by <strong>John Doe</strong>
+              Owned by{" "}
+              <strong>{devInvitation?.organization?.manager?.name}</strong>
             </div>
             <div className="text-sm text-gray-600 mt-2">
               You have been invited to join.
             </div>
           </div>
 
-          {/* ✅ Buttons Row */}
-          <div className="flex gap-4">
-            <button
-              onClick={() => onSubmit({ status: JoinStatus.ACCEPTED })}
-              disabled={isSubmitting}
-              className="w-1/2 bg-[#FB5711] hover:bg-orange-600 disabled:opacity-70 text-white font-medium py-3 px-4 rounded-lg text-center flex justify-center transition-colors"
-            >
-              {isSubmitting ? "Joining..." : "Accept"}
-            </button>
+          {/* ✅ Conditional Rendering Based on Invitation Status */}
+          {!alreadyResponded ? (
+            <div className="flex gap-4">
+              <button
+                onClick={() => onSubmit({ status: JoinStatus.ACCEPTED })}
+                disabled={isSubmitting}
+                className="w-1/2 bg-[#FB5711] hover:bg-orange-600 disabled:opacity-70 text-white font-medium py-3 px-4 rounded-lg text-center flex justify-center transition-colors"
+              >
+                {isSubmitting ? "Joining..." : "Accept"}
+              </button>
 
-            <button
-              onClick={() => setShowDeclineConfirm(true)}
-              type="button"
-              className="w-1/2 text-[#FB5711] font-medium py-3 px-4 rounded-lg border border-[#FB5711] text-center flex justify-center transition-colors"
-            >
-              Decline
-            </button>
-          </div>
+              <button
+                onClick={() => setShowDeclineConfirm(true)}
+                type="button"
+                className="w-1/2 text-[#FB5711] font-medium py-3 px-4 rounded-lg border border-[#FB5711] text-center flex justify-center transition-colors"
+              >
+                Decline
+              </button>
+            </div>
+          ) : (
+            <div className="text-center space-y-4">
+              <p className="text-gray-700 font-medium">
+                You have already responded to this invitation.
+              </p>
+              <button
+                onClick={() => router.push("/developer/dashboard")}
+                className="bg-[#FB5711] hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+              >
+                Go to Dashboard
+              </button>
+            </div>
+          )}
         </div>
 
         {/* 🔻 Decline Confirmation Modal */}

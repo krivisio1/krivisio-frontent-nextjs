@@ -1,3 +1,4 @@
+import { InviteForm, JoinForm } from "@/app/invite/invite.schema";
 import { CreateOrgSchemaType } from "@/app/onboarding/new-org/org.schema";
 import { AxiosInstance } from "axios";
 
@@ -18,6 +19,29 @@ export async function saveOrganization(
 
 export async function getAllOrgMembers(axios: AxiosInstance, org_id: string) {
   const res = await axios.get("/api/org/members?org_id=" + org_id);
+
+  return res?.data?.data;
+}
+
+export async function createInvitation(
+  axios: AxiosInstance,
+  data: InviteForm,
+  organization_id: string,
+) {
+  const res = await axios.post("/api/org/invitation", {
+    organization_id,
+    ...data,
+  });
+
+  return res?.data?.data;
+}
+
+export async function respondInvitation(
+  axios: AxiosInstance,
+  data: JoinForm,
+  invId: string,
+) {
+  const res = await axios.post("/api/org/invitation/respond?id=" + invId, data);
 
   return res?.data?.data;
 }

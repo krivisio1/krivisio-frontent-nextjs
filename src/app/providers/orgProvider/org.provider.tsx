@@ -9,22 +9,26 @@ import {
 import { OrgContext } from "./org.context";
 import { CreateOrgSchemaType } from "@/app/onboarding/new-org/org.schema";
 import {
+  createInvitation,
   getAllOrgInvitation,
   getAllOrgMembers,
   getInvitationInfo,
+  respondInvitation,
   saveOrganization,
 } from "./org.api";
 import { useAxios } from "@/services/axios/axios.context";
 import { toast } from "react-toastify";
 import { UseUserContext } from "../userProvider/user.context";
 import { USER_ROLES } from "@/app/constant";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { InviteForm, JoinForm } from "@/app/invite/invite.schema";
 
 export function OrganizationProvider({ children }: { children: ReactNode }) {
   const { axios } = useAxios();
   const { userData, fetchUserData } = UseUserContext();
 
   const pathname = usePathname();
+  const router = useRouter();
 
   const [orgMembers, setOrgMembers] = useState<any[] | null>([]);
   const [invitations, setInvitations] = useState<any[] | null>([]);
@@ -60,6 +64,40 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
         setOrgMembers(res);
       }
     } catch (error: any) {}
+  }
+
+  async function createInvitations(data: InviteForm) {
+    if (
+      !userData ||
+      userData.role != USER_ROLES.PROJECT_MANAGER ||
+      !userData.organization
+    )
+      return;
+
+    try {
+      const res = await createInvitation(axios, data, userData.organization.id);
+      if (res.data) {
+        toast.success(res.data);
+        getOrgInvitations();
+      } else {
+        toast.error(res?.meta?.message);
+      }
+    } catch (error: any) {
+      toast.error("Something went wrong, try again later");
+    }
+  }
+
+  async function respondToInvitation(data: JoinForm) {
+    if (!userData || userData.role != USER_ROLES.DEVELOPER) return;
+
+    const res = await respondInvitation(axios, data, devInvitation.id);
+    if (res) {
+      toast.success(res);
+      router.replace("/developer/dashboard");
+      setDevInvitaiton(null);
+    } else {
+      toast.error(res?.meta?.message);
+    }
   }
 
   async function getOrgInvitations() {
@@ -119,7 +157,6 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
     });
   }, [pathname, userData]);
 
-  console.log({ devInvitation });
   return (
     <OrgContext.Provider
       value={{
@@ -131,6 +168,8 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
         skipInvitePage,
         isInvitationfetching,
         devInvitation,
+        createInvitations,
+        respondToInvitation,
       }}
     >
       {children}

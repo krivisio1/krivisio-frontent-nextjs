@@ -6,7 +6,7 @@ import { useFormContext } from "react-hook-form";
 
 export default function EmailsInput() {
   const { setValue, watch } = useFormContext();
-  const emails: string[] = watch("emails") || [];
+  const user_emails: string[] = watch("user_emails") || [];
   const [input, setInput] = useState("");
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -14,17 +14,17 @@ export default function EmailsInput() {
       e.preventDefault();
       const newEmail = input.trim();
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (emailRegex.test(newEmail) && !emails.includes(newEmail)) {
-        const updated = [...emails, newEmail];
-        setValue("emails", updated, { shouldValidate: true });
+      if (emailRegex.test(newEmail) && !user_emails.includes(newEmail)) {
+        const updated = [...user_emails, newEmail];
+        setValue("user_emails", updated, { shouldValidate: true });
       }
       setInput("");
     }
   };
 
   const removeEmail = (emailToRemove: string) => {
-    const updated = emails.filter((e) => e !== emailToRemove);
-    setValue("emails", updated, { shouldValidate: true });
+    const updated = user_emails.filter((e) => e !== emailToRemove);
+    setValue("user_emails", updated, { shouldValidate: true });
   };
 
   return (
@@ -45,7 +45,7 @@ export default function EmailsInput() {
       />
 
       <div className="flex flex-wrap gap-2 mt-3">
-        {emails.map((email, index) => (
+        {user_emails.map((email, index) => (
           <span
             key={index}
             className="flex items-center gap-2 border border-gray-300 bg-orange-50 text-orange-700 px-3 py-1 rounded-lg text-sm font-medium"

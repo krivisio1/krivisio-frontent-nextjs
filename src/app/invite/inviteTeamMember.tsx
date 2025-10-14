@@ -9,7 +9,7 @@ import { InviteForm, inviteSchema } from "./invite.schema";
 import EmailsInput from "./partials/emailInput";
 
 export default function Invitation() {
-  const { skipInvitePage } = useOrgHook();
+  const { skipInvitePage, createInvitations } = useOrgHook();
 
   const methods = useForm<InviteForm>({
     resolver: zodResolver(inviteSchema),
@@ -21,8 +21,7 @@ export default function Invitation() {
   } = methods;
 
   const onSubmit = (data: InviteForm) => {
-    // TODO: Handle API call to send invites
-    console.log("Inviting team members:", data);
+    createInvitations(data);
   };
 
   return (
@@ -57,9 +56,9 @@ export default function Invitation() {
             <form onSubmit={handleSubmit(onSubmit)} noValidate>
               <div className="mb-4">
                 <EmailsInput />
-                {errors.emails && (
+                {errors.user_emails && (
                   <p className="text-red-500 text-sm mt-1">
-                    {(errors.emails as any).message}
+                    {(errors.user_emails as any).message}
                   </p>
                 )}
               </div>

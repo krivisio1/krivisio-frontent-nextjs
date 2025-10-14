@@ -2,10 +2,11 @@ import z from "zod";
 export enum JoinStatus {
   ACCEPTED = "ACCEPTED",
   DECLINED = "DECLINED",
+  PENDING = "PENDING",
 }
 
 export const inviteSchema = z.object({
-  emails: z
+  user_emails: z
     .array(z.string().email("Invalid email"))
     .min(1, "Please enter at least one valid email"),
 });
