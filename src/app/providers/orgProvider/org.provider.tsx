@@ -39,9 +39,9 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   async function createOrganization(data: CreateOrgSchemaType) {
     try {
       const res = await saveOrganization(axios, data);
-      if (!res.data) toast.error(res?.meta?.message);
+      if (!res) toast.error(res?.meta?.message);
       else {
-        toast.success(res.data);
+        toast.success(res);
       }
     } catch (error: any) {
       toast.error("Something went wrong, try again later");
@@ -76,9 +76,11 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
 
     try {
       const res = await createInvitation(axios, data, userData.organization.id);
-      if (res.data) {
-        toast.success(res.data);
+      if (res) {
+        toast.success(res);
         getOrgInvitations();
+        skipInvitePage();
+        router.replace("/management/dashboard");
       } else {
         toast.error(res?.meta?.message);
       }
