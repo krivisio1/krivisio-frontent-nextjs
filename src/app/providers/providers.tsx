@@ -5,6 +5,7 @@ import { SupabaseNewProvider } from "@/services/supabase/supabase.provider";
 import { QueryProvider } from "./query-provider";
 import { UserProvider } from "./userProvider/user.provder";
 import { OrganizationProvider } from "./orgProvider/org.provider";
+import { RedirectProvider } from "./redirectProvider/redirect.provider";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -12,7 +13,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <AxiosProvider>
         <UserProvider>
           <SupabaseNewProvider>
-            <OrganizationProvider>{children}</OrganizationProvider>
+            <OrganizationProvider>
+              <RedirectProvider>{children}</RedirectProvider>
+            </OrganizationProvider>
           </SupabaseNewProvider>
         </UserProvider>
       </AxiosProvider>

@@ -12,20 +12,6 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { authorised, isLoading } = useSupabase({
-    required: true,
-    redirect: "/auth/login",
-    role: ["PROJECT_MANAGER"],
-  });
-
-  const { userData, isUserDataloading } = UseUserContext({
-    required: true,
-  });
-
-  const { orgMembers } = useOrgHook();
-
-  if (isLoading || !authorised || isUserDataloading) return <ScreenLoader />;
-
   return (
     <div className="flex bg-gray-50">
       <ExactSidebar />

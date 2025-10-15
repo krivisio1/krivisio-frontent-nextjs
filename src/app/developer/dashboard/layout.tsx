@@ -11,18 +11,6 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { authorised, isLoading } = useSupabase({
-    required: true,
-    redirect: "/auth/login",
-    role: ["DEVELOPER"],
-  });
-
-  const { userData, isUserDataloading } = UseUserContext({
-    required: true,
-  });
-
-  if (isLoading || !authorised || isUserDataloading) return <ScreenLoader />;
-
   return (
     <div className="flex bg-white min-h-screen">
       <Sidebar />
