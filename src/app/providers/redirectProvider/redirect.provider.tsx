@@ -30,6 +30,7 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
     const { role, dev_profile, organization } = userData || {};
 
     // --- AUTH CHECK ---
+
     if (!session) {
       router.replace("/auth/login");
       return;

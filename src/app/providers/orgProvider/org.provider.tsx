@@ -31,7 +31,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   const [orgMembers, setOrgMembers] = useState<any[] | null>([]);
-  const [invitations, setInvitations] = useState<any[] | null>([]);
+  const [invitations, setInvitations] = useState<any[] | null>(null);
   const [isSkipped, setSkipped] = useState<boolean>(false);
   const [devInvitation, setDevInvitaiton] = useState<any>(null);
   const [isInvitationfetching, startInvitationFecthing] = useTransition();
@@ -42,6 +42,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
       if (!res) toast.error(res?.meta?.message);
       else {
         toast.success(res);
+        router.replace("/invite");
       }
     } catch (error: any) {
       toast.error("Something went wrong, try again later");
@@ -76,6 +77,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
 
     try {
       const res = await createInvitation(axios, data, userData.organization.id);
+      console.log({ res });
       if (res) {
         toast.success(res);
         getOrgInvitations();
