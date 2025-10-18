@@ -32,9 +32,6 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
     const isInvitePage = pathParts[0] === "invite";
     const isOrgInvitePage = pathParts[1]; // /invite/[org-name]
 
-    // -------------------------------
-    // 1️⃣ NOT LOGGED IN
-    // -------------------------------
     if (!session) {
       if (isInvitePage && isOrgInvitePage) {
         localStorage.setItem("redirectAfterLogin", pathname);
@@ -43,15 +40,9 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // -------------------------------
-    // 2️⃣ AUTHENTICATED USER (role selection)
-    // -------------------------------
     if (role === USER_ROLES.AUTHENTICATED)
       return router.replace("/auth/choose-role");
 
-    // -------------------------------
-    // 3️⃣ PROJECT MANAGER LOGIC
-    // -------------------------------
     if (role === USER_ROLES.PROJECT_MANAGER) {
       if (!organization) return router.replace("/onboarding/new-org");
 
@@ -66,34 +57,20 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
       return router.replace("/management/dashboard");
     }
 
-    // -------------------------------
-    // 4️⃣ DEVELOPER LOGIC
-    // -------------------------------
     if (role === USER_ROLES.DEVELOPER) {
-      // 4a. Setup profile first
-      //
-      console.log("ajay 1");
       if (!dev_profile) return router.replace("/onboarding/setup-profile");
 
-      console.log("ajay 2");
-      // 4b. Check if we have a pending redirect after login
       const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
-      console.log("ajay 2.5", { redirectAfterLogin });
+
       if (redirectAfterLogin) {
-        console.log("ajay 3 removed");
         localStorage.removeItem("redirectAfterLogin");
-        console.log("ajay 3 redireting", { redirectAfterLogin });
 
         return router.replace(redirectAfterLogin);
-        // throw new Error(redirectAfterLogin);
       }
 
-      // 4c. Access controleveloper/dashboard
-      if (isInvitePage && isOrgInvitePage) return; // allowed
+      if (isInvitePage && isOrgInvitePage) return;
       if (isInvitePage && !isOrgInvitePage)
         return router.replace("/developer/dashboard");
-
-      // Default
 
       return router.replace("/developer/dashboard");
     }
@@ -108,8 +85,33 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useRedirect() {
-  const ctx = useContext(RedirectContext);
-  if (!ctx) throw new Error("useRedirect must be used inside RedirectProvider");
-  return ctx;
+export type UseRedirectType = {
+  role?: string | string[];
+  redirectTo?: string;
+};
+export function useRedirect(props: UseRedirectType) {
+  const context = useContext(RedirectContext);
+  if (!context)
+    throw new Error("useRedirect must be used inside RedirectProvider");
+
+  const pathname = usePathname();
+  const router = useRouter();
+  const { session } = useSupabase();
+  const { userData, isUserDataloading } = UseUserContext();
+
+  // if (isUserDataloading) return { ...context, authorised: false };
+
+  console.log({ userData });
+  const authorised = !!(props?.role && props.role.includes(userData?.role!));
+
+  useEffect(() => {
+    if (context.isLoading || isUserDataloading) return;
+
+    console.log({ authorised, session }, "REDIRECT CHECK");
+    if (!session || !authorised) {
+      router.replace(props?.redirectTo ?? "/");
+    }
+  }, [session, pathname, authorised, userData]);
+
+  return { ...context, authorised };
 }
