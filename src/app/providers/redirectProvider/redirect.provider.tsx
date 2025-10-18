@@ -15,9 +15,9 @@ interface RedirectContextType {
 const RedirectContext = createContext<RedirectContextType | null>(null);
 
 export function RedirectProvider({ children }: { children: React.ReactNode }) {
-  const { session, isLoading: isSupabaseLoading } = useSupabase();
+  const { session, isLoading: isSupabaseLoading, logout } = useSupabase();
   const { userData, isUserDataloading } = UseUserContext();
-  const { isInvitationfetching } = useOrgHook();
+  const { isInvitationfetching, isSkipped, invitations } = useOrgHook();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -31,10 +31,7 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
 
     // --- AUTH CHECK ---
 
-    if (!session) {
-      router.replace("/auth/login");
-      return;
-    }
+    if (!session) return;
 
     // --- ROLE-BASED REDIRECTS ---
     if (role === USER_ROLES.AUTHENTICATED) {
@@ -49,9 +46,13 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
     const pathParts = pathname.split("/").filter(Boolean);
     const isInvitePage = pathParts[0] === "invite";
     if (isInvitePage && role === USER_ROLES.PROJECT_MANAGER) {
-      router.replace("/invite");
+      console.log({ isSkipped, invitations });
+      if (invitations.length === 0 && !isSkipped) {
+        return router.replace("/invite");
+      }
+      router.replace("/management/dashboard");
     }
-  }, [isLoading, userData, pathname]);
+  }, [isLoading, userData, pathname, isSkipped, invitations]);
 
   if (isLoading) return <ScreenLoader />;
 

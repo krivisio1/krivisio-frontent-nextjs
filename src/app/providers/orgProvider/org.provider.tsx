@@ -31,7 +31,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   const [orgMembers, setOrgMembers] = useState<any[] | null>([]);
-  const [invitations, setInvitations] = useState<any[] | null>(null);
+  const [invitations, setInvitations] = useState<any[] | null>([]);
   const [isSkipped, setSkipped] = useState<boolean>(false);
   const [devInvitation, setDevInvitaiton] = useState<any>(null);
   const [isInvitationfetching, startInvitationFecthing] = useTransition();
