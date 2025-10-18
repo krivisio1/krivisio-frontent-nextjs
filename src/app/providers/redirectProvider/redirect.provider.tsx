@@ -30,8 +30,7 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
     const { role, dev_profile, organization } = userData || {};
     const pathParts = pathname.split("/").filter(Boolean);
     const isInvitePage = pathParts[0] === "invite";
-    const isOrgInvitePage = pathParts[1]; // /invite/[org-name]
-
+    const isOrgInvitePage = pathParts[1];
     if (!session) {
       if (isInvitePage && isOrgInvitePage) {
         localStorage.setItem("redirectAfterLogin", pathname);
@@ -46,21 +45,25 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
     if (role === USER_ROLES.PROJECT_MANAGER) {
       if (!organization) return router.replace("/onboarding/new-org");
 
+      const isOnManagement = pathname.startsWith("/management/dashboard");
+
       if (isInvitePage && !isOrgInvitePage) {
         if (invitations.length === 0 && !isSkipped)
           return router.replace("/invite");
         return router.replace("/management/dashboard");
       }
 
-      if (isOrgInvitePage) return router.replace("/management/dashboard");
+      if (!isOnManagement && !isInvitePage)
+        return router.replace("/management/dashboard");
 
-      return router.replace("/management/dashboard");
+      return;
     }
 
     if (role === USER_ROLES.DEVELOPER) {
       if (!dev_profile) return router.replace("/onboarding/setup-profile");
 
       const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
+      const isOnDeveloper = pathname.startsWith("/developer/dashboard");
 
       if (redirectAfterLogin) {
         localStorage.removeItem("redirectAfterLogin");
@@ -71,8 +74,10 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
       if (isInvitePage && isOrgInvitePage) return;
       if (isInvitePage && !isOrgInvitePage)
         return router.replace("/developer/dashboard");
+      if (!isOnDeveloper && !isInvitePage)
+        return router.replace("/developer/dashboard");
 
-      return router.replace("/developer/dashboard");
+      return;
     }
   }, [isLoading, userData, pathname, isSkipped, invitations, router, session]);
 
