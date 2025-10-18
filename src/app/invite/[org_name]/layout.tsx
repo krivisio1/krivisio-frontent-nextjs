@@ -12,5 +12,6 @@ export default function InviteLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // throw new Error("check");
   return <>{children}</>;
 }
