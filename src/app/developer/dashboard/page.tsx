@@ -244,12 +244,10 @@ const DeveloperDashboard: React.FC = () => {
                     />
                   </div>
                   <h3 className="text-xl font-base mb-6 text-black">
-                    Kavya Nair
+                    {userData.name}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Passionate frontend developer specializing in React and
-                    modern web technologies. Focused on creating intuitive user
-                    experiences for e-commerce platforms.
+                    {userData.bio || "No bio available."}
                   </p>
                 </div>
 
