@@ -30,8 +30,7 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
     const { role, dev_profile, organization } = userData || {};
     const pathParts = pathname.split("/").filter(Boolean);
     const isInvitePage = pathParts[0] === "invite";
-    const isOrgInvitePage = pathParts[1]; // /invite/[org-name]
-
+    const isOrgInvitePage = pathParts[1];
     if (!session) {
       if (isInvitePage && isOrgInvitePage) {
         localStorage.setItem("redirectAfterLogin", pathname);
@@ -47,7 +46,6 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
       if (!organization) return router.replace("/onboarding/new-org");
 
       const isOnManagement = pathname.startsWith("/management/dashboard");
-      const isOnInvite = pathname.startsWith("/invite");
 
       if (isInvitePage && !isOrgInvitePage) {
         if (invitations.length === 0 && !isSkipped)
@@ -55,7 +53,7 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
         return router.replace("/management/dashboard");
       }
 
-      if (!isOnManagement && !isOnInvite)
+      if (!isOnManagement && !isInvitePage)
         return router.replace("/management/dashboard");
 
       return;
@@ -66,7 +64,6 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
 
       const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
       const isOnDeveloper = pathname.startsWith("/developer/dashboard");
-      const isOnInvite = pathname.startsWith("/invite");
 
       if (redirectAfterLogin) {
         localStorage.removeItem("redirectAfterLogin");
@@ -77,7 +74,7 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
       if (isInvitePage && isOrgInvitePage) return;
       if (isInvitePage && !isOrgInvitePage)
         return router.replace("/developer/dashboard");
-      if (!isOnDeveloper && !isOnInvite)
+      if (!isOnDeveloper && !isInvitePage)
         return router.replace("/developer/dashboard");
 
       return;
