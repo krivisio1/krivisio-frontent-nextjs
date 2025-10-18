@@ -46,21 +46,27 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
     if (role === USER_ROLES.PROJECT_MANAGER) {
       if (!organization) return router.replace("/onboarding/new-org");
 
+      const isOnManagement = pathname.startsWith("/management/dashboard");
+      const isOnInvite = pathname.startsWith("/invite");
+
       if (isInvitePage && !isOrgInvitePage) {
         if (invitations.length === 0 && !isSkipped)
           return router.replace("/invite");
         return router.replace("/management/dashboard");
       }
 
-      if (isOrgInvitePage) return router.replace("/management/dashboard");
+      if (!isOnManagement && !isOnInvite)
+        return router.replace("/management/dashboard");
 
-      return router.replace("/management/dashboard");
+      return;
     }
 
     if (role === USER_ROLES.DEVELOPER) {
       if (!dev_profile) return router.replace("/onboarding/setup-profile");
 
       const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
+      const isOnDeveloper = pathname.startsWith("/developer/dashboard");
+      const isOnInvite = pathname.startsWith("/invite");
 
       if (redirectAfterLogin) {
         localStorage.removeItem("redirectAfterLogin");
@@ -71,8 +77,10 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
       if (isInvitePage && isOrgInvitePage) return;
       if (isInvitePage && !isOrgInvitePage)
         return router.replace("/developer/dashboard");
+      if (!isOnDeveloper && !isOnInvite)
+        return router.replace("/developer/dashboard");
 
-      return router.replace("/developer/dashboard");
+      return;
     }
   }, [isLoading, userData, pathname, isSkipped, invitations, router, session]);
 
