@@ -17,7 +17,7 @@ const RedirectContext = createContext<RedirectContextType | null>(null);
 export function RedirectProvider({ children }: { children: React.ReactNode }) {
   const { session, isLoading: isSupabaseLoading } = useSupabase();
   const { userData, isUserDataloading } = UseUserContext();
-  const { isInvitationfetching } = useOrgHook();
+  const { isInvitationfetching, isSkipped, invitations } = useOrgHook();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -28,29 +28,76 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
     if (isLoading) return;
 
     const { role, dev_profile, organization } = userData || {};
+    const pathParts = pathname.split("/").filter(Boolean);
+    const isInvitePage = pathParts[0] === "invite";
+    const isOrgInvitePage = pathParts[1]; // /invite/[org-name]
 
-    // --- AUTH CHECK ---
+    // -------------------------------
+    // 1️⃣ NOT LOGGED IN
+    // -------------------------------
     if (!session) {
-      router.replace("/auth/login");
+      if (isInvitePage && isOrgInvitePage) {
+        localStorage.setItem("redirectAfterLogin", pathname);
+        return router.replace("/auth/login");
+      }
       return;
     }
 
-    // --- ROLE-BASED REDIRECTS ---
-    if (role === USER_ROLES.AUTHENTICATED) {
-      router.replace("/auth/choose-role");
-    } else if (role === USER_ROLES.DEVELOPER && !dev_profile) {
-      router.replace("/onboarding/setup-profile");
-    } else if (role === USER_ROLES.PROJECT_MANAGER && !organization) {
-      router.replace("/onboarding/new-org");
+    // -------------------------------
+    // 2️⃣ AUTHENTICATED USER (role selection)
+    // -------------------------------
+    if (role === USER_ROLES.AUTHENTICATED)
+      return router.replace("/auth/choose-role");
+
+    // -------------------------------
+    // 3️⃣ PROJECT MANAGER LOGIC
+    // -------------------------------
+    if (role === USER_ROLES.PROJECT_MANAGER) {
+      if (!organization) return router.replace("/onboarding/new-org");
+
+      if (isInvitePage && !isOrgInvitePage) {
+        if (invitations.length === 0 && !isSkipped)
+          return router.replace("/invite");
+        return router.replace("/management/dashboard");
+      }
+
+      if (isOrgInvitePage) return router.replace("/management/dashboard");
+
+      return router.replace("/management/dashboard");
     }
 
-    // --- INVITE HANDLING (optional) ---
-    const pathParts = pathname.split("/").filter(Boolean);
-    const isInvitePage = pathParts[0] === "invite";
-    if (isInvitePage && role === USER_ROLES.PROJECT_MANAGER) {
-      router.replace("/invite");
+    // -------------------------------
+    // 4️⃣ DEVELOPER LOGIC
+    // -------------------------------
+    if (role === USER_ROLES.DEVELOPER) {
+      // 4a. Setup profile first
+      //
+      console.log("ajay 1");
+      if (!dev_profile) return router.replace("/onboarding/setup-profile");
+
+      console.log("ajay 2");
+      // 4b. Check if we have a pending redirect after login
+      const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
+      console.log("ajay 2.5", { redirectAfterLogin });
+      if (redirectAfterLogin) {
+        console.log("ajay 3 removed");
+        localStorage.removeItem("redirectAfterLogin");
+        console.log("ajay 3 redireting", { redirectAfterLogin });
+
+        return router.replace(redirectAfterLogin);
+        // throw new Error(redirectAfterLogin);
+      }
+
+      // 4c. Access controleveloper/dashboard
+      if (isInvitePage && isOrgInvitePage) return; // allowed
+      if (isInvitePage && !isOrgInvitePage)
+        return router.replace("/developer/dashboard");
+
+      // Default
+
+      return router.replace("/developer/dashboard");
     }
-  }, [isLoading, userData, pathname]);
+  }, [isLoading, userData, pathname, isSkipped, invitations, router, session]);
 
   if (isLoading) return <ScreenLoader />;
 

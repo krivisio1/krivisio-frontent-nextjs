@@ -13,8 +13,7 @@ export default function JoinWorkspace() {
   const [showDeclineConfirm, setShowDeclineConfirm] = useState(false);
   const router = useRouter();
 
-  const { isInvitationfetching, devInvitation, respondToInvitation } =
-    useOrgHook();
+  const { devInvitation, respondToInvitation } = useOrgHook();
 
   const {
     handleSubmit,
@@ -37,9 +36,6 @@ export default function JoinWorkspace() {
     handleSubmit(() => onSubmit({ status: JoinStatus.DECLINED }))();
     setShowDeclineConfirm(false);
   };
-
-  if (isInvitationfetching) return <ScreenLoader />;
-
   const status = devInvitation?.status;
 
   const alreadyResponded = status && status !== JoinStatus.PENDING;
