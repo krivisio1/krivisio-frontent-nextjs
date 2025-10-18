@@ -3,20 +3,15 @@
 import { ChatBotProvider } from "@/app/providers/chatBotProvider/chatbot.provider";
 import { ExactSidebar } from "@/app/management/dashboard/partials/ExactSidebar";
 import { useSupabase } from "@/services/supabase/supabase.hook";
+import { ScreenLoader } from "@/components/loader";
+import { UseUserContext } from "@/app/providers/userProvider/user.context";
+import { useOrgHook } from "@/app/providers/orgProvider/org.hook";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { authorised, isLoading } = useSupabase({
-    required: true,
-    redirect: "/auth/choose-role",
-    role: ["PROJECT_MANAGER"],
-  });
-
-  if (isLoading || !authorised) return <div>Loading...</div>;
-
   return (
     <div className="flex bg-gray-50">
       <ExactSidebar />
