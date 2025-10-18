@@ -15,13 +15,13 @@ export default function InviteLayout({
 }) {
   console.log("IN ORG INVITE 1");
 
-  // const { isLoading, authorised } = useRedirect({
-  //   role: ["DEVELOPER"],
-  //   redirectTo: "/unauthorized",
-  // });
+  const { isLoading, authorised } = useRedirect({
+    role: ["DEVELOPER"],
+    redirectTo: "/unauthorized",
+  });
 
   console.log("IN ORG INVITE");
-  // if (isLoading || !authorised) return <ScreenLoader />;
+  if (isLoading || !authorised) return <ScreenLoader />;
 
   return <>{children}</>;
 }
