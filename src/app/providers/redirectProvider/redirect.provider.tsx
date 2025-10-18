@@ -29,28 +29,43 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
 
     const { role, dev_profile, organization } = userData || {};
 
-    // --- AUTH CHECK ---
-
-    if (!session) return;
-
-    // --- ROLE-BASED REDIRECTS ---
-    if (role === USER_ROLES.AUTHENTICATED) {
-      router.replace("/auth/choose-role");
-    } else if (role === USER_ROLES.DEVELOPER && !dev_profile) {
-      router.replace("/onboarding/setup-profile");
-    } else if (role === USER_ROLES.PROJECT_MANAGER && !organization) {
-      router.replace("/onboarding/new-org");
-    }
-
-    // --- INVITE HANDLING (optional) ---
     const pathParts = pathname.split("/").filter(Boolean);
     const isInvitePage = pathParts[0] === "invite";
-    if (isInvitePage && role === USER_ROLES.PROJECT_MANAGER) {
-      console.log({ isSkipped, invitations });
-      if (invitations.length === 0 && !isSkipped) {
-        return router.replace("/invite");
+
+    if (!session) {
+      if (isInvitePage) {
+        localStorage.setItem("redirectAfterLogin", pathname);
       }
-      router.replace("/management/dashboard");
+      return;
+    }
+
+    if (role === USER_ROLES.DEVELOPER) {
+      if (!dev_profile) {
+        return router.replace("/onboarding/setup-profile");
+      }
+
+      const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
+      if (redirectAfterLogin) {
+        localStorage.removeItem("redirectAfterLogin");
+        return router.replace(redirectAfterLogin);
+      }
+
+      return router.replace("/developer/dashboard");
+    }
+
+    if (role === USER_ROLES.PROJECT_MANAGER) {
+      if (!organization) {
+        return router.replace("/onboarding/new-org");
+      }
+
+      if (isInvitePage) {
+        if (invitations.length === 0 && !isSkipped) {
+          return router.replace("/invite");
+        }
+        return router.replace("/management/dashboard");
+      }
+
+      return router.replace("/management/dashboard");
     }
   }, [isLoading, userData, pathname, isSkipped, invitations]);
 
