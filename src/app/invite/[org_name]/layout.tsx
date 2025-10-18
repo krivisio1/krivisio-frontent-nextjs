@@ -12,12 +12,5 @@ export default function InviteLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { userData, isUserDataloading } = UseUserContext({
-    required: true,
-  });
-  // const router = useRouter();
-  const { isInvitationfetching } = useOrgHook();
-
-  if (isUserDataloading || isInvitationfetching) return <ScreenLoader />;
   return <>{children}</>;
 }
