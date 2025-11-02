@@ -20,7 +20,7 @@ const sidebarIcons = [
   { icon: BarChart3, route: "/management/dashboard/board" },
   { icon: Calendar, route: "/management/dashboard/calendar" },
   { icon: Users, route: "/management/dashboard/team" },
-  { icon: TriangleAlert , route: "/developer/dashboard/notification" },
+  { icon: TriangleAlert , route: "/management/dashboard/notification" },
 ];
 
 export const ExactSidebar = () => {
