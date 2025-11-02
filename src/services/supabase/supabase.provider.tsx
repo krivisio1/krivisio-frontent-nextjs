@@ -134,7 +134,7 @@ export function SupabaseNewProvider({
       }
       return;
     }
-
+    fetchUserData();
     toast.success("Signed in successfully!");
     refetch();
   }
