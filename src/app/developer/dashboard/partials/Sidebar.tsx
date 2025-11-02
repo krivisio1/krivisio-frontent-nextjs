@@ -1,7 +1,7 @@
 "use client";
 
 import { useSupabase } from "@/services/supabase/supabase.hook";
-import { Home, BarChart3, Calendar, User, LogOut } from "lucide-react";
+import { Home, BarChart3, Calendar, User, LogOut, TriangleAlert } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -10,6 +10,7 @@ const sidebarIcons = [
   { icon: Home, url: "/developer/dashboard" },
   { icon: BarChart3, url: "/developer/dashboard/board" },
   { icon: Calendar, url: "/developer/dashboard/calendar" },
+  { icon: TriangleAlert , url: "/developer/dashboard/notification" },
 ];
 
 export const Sidebar = () => {
