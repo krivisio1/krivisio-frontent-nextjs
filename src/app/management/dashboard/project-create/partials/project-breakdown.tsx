@@ -7,9 +7,9 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ProjectBreakdownCategories from "./partials/project-breakdown-category";
-import SRSGenerationDialog from "./partials/srs-generation";
-import ProjectHistory from "./partials/projects-history";
+import ProjectBreakdownCategories from "./project-breakdown-category";
+import SRSGenerationDialog from "./srs-generation";
+import ProjectHistory from "./projects-history";
 
 type Step = "description" | "categories" | "srs";
 
@@ -215,67 +215,67 @@ export default function ProjectBreakdown() {
                 </div>
               )}
 
-              {/*{selectedCategory && !srsGenerated && (*/}
-              <Card className="border-2 border-[#fb5711]">
-                <CardHeader className="bg-[#fb5711]/5">
-                  <CardTitle className="text-[#fb5711]">
-                    Generate SRS Document
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6 space-y-4">
-                  <p className="text-muted-foreground">
-                    You have selected{" "}
-                    <span className="font-semibold text-foreground capitalize">
-                      {selectedCategory}
-                    </span>{" "}
-                    complexity. Add any additional instructions for the SRS
-                    generation.
-                  </p>
-                  <div>
-                    <label className="text-sm font-semibold text-foreground mb-2 block">
-                      Add More Instruction
-                    </label>
-                    <Textarea
-                      placeholder="Add specific requirements, technologies, or preferences..."
-                      value={additionalInstructions}
-                      onChange={(e) =>
-                        setAdditionalInstructions(e.target.value)
-                      }
-                      className="min-h-32"
-                    />
-                  </div>
-                  <Button
-                    onClick={() => {
-                      setSRSGenerated(true);
-                      setShowSRSDialog(true);
-                    }}
-                    size="lg"
-                    className="bg-[#fb5711] hover:bg-[#fb5711]/90 text-white"
-                  >
-                    Generate SRS
-                  </Button>
-                </CardContent>
-              </Card>
-              {/*)}*/}
+              {selectedCategory && !srsGenerated && (
+                <Card className="border-2 border-[#fb5711]">
+                  <CardHeader className="bg-[#fb5711]/5">
+                    <CardTitle className="text-[#fb5711]">
+                      Generate SRS Document
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-4">
+                    <p className="text-muted-foreground">
+                      You have selected{" "}
+                      <span className="font-semibold text-foreground capitalize">
+                        {selectedCategory}
+                      </span>{" "}
+                      complexity. Add any additional instructions for the SRS
+                      generation.
+                    </p>
+                    <div>
+                      <label className="text-sm font-semibold text-foreground mb-2 block">
+                        Add More Instruction
+                      </label>
+                      <Textarea
+                        placeholder="Add specific requirements, technologies, or preferences..."
+                        value={additionalInstructions}
+                        onChange={(e) =>
+                          setAdditionalInstructions(e.target.value)
+                        }
+                        className="min-h-32"
+                      />
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setSRSGenerated(true);
+                        setShowSRSDialog(true);
+                      }}
+                      size="lg"
+                      className="bg-[#fb5711] hover:bg-[#fb5711]/90 text-white"
+                    >
+                      Generate SRS
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
 
-              {/*{srsGenerated && selectedCategory && (*/}
-              {/*<Card className="border-2 border-[#fb5711]/50 bg-[#fb5711]/2">
-                <CardHeader className="bg-[#fb5711]/5">
-                  <CardTitle className="text-[#fb5711]">
-                    SRS Generated
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <p className="text-muted-foreground">
-                    SRS document has been generated for{" "}
-                    <span className="font-semibold text-foreground capitalize">
-                      {selectedCategory}
-                    </span>{" "}
-                    complexity. The category selection is now locked.
-                  </p>
-                </CardContent>
-              </Card>*/}
-              {/*)}*/}
+              {srsGenerated && selectedCategory && (
+                <Card className="border-2 border-[#fb5711]/50 bg-[#fb5711]/2">
+                  <CardHeader className="bg-[#fb5711]/5">
+                    <CardTitle className="text-[#fb5711]">
+                      SRS Generated
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <p className="text-muted-foreground">
+                      SRS document has been generated for{" "}
+                      <span className="font-semibold text-foreground capitalize">
+                        {selectedCategory}
+                      </span>{" "}
+                      complexity. The category selection is now locked.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
         </div>
