@@ -17,7 +17,10 @@ const RedirectContext = createContext<RedirectContextType | null>(null);
 export function RedirectProvider({ children }: { children: React.ReactNode }) {
   const { session, isLoading: isSupabaseLoading } = useSupabase();
   const { userData, isUserDataloading } = UseUserContext();
+
   const { isInvitationfetching, isSkipped, invitations } = useOrgHook();
+
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -26,6 +29,10 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (isLoading) return;
+
+    console.log("ajay 1");
+
+    console.log({ userData });
 
     const { role, dev_profile, organization } = userData || {};
     const pathParts = pathname.split("/").filter(Boolean);
@@ -47,15 +54,18 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
       if (!organization) return router.replace("/onboarding/new-org");
 
       if (isInvitePage && !isOrgInvitePage) {
-        if (invitations.length === 0 && !isSkipped)
+        if (invitations.length === 0 && !isSkipped) {
           return router.replace("/invite");
+        }
+
         return router.replace("/management/dashboard");
       }
 
-      if (isInvitePage && isOrgInvitePage)
+      if (isInvitePage && isOrgInvitePage) {
         return router.replace("/management/dashboard");
+      }
 
-      return router.replace("/management/dashboard");
+      return;
     }
 
     if (role === USER_ROLES.DEVELOPER) {
@@ -73,7 +83,7 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
       if (isInvitePage && !isOrgInvitePage)
         return router.replace("/developer/dashboard");
 
-      return router.replace("/developer/dashboard");
+      return;
     }
   }, [isLoading, userData, pathname, isSkipped, invitations, router, session]);
 
@@ -112,6 +122,7 @@ export function useRedirect(props: UseRedirectType) {
     if (!session || !authorised) {
       router.replace(props?.redirectTo ?? "/");
     }
+    console.log("passed");
   }, [session, pathname, authorised, userData]);
 
   return { ...context, authorised };
