@@ -19,10 +19,7 @@ export function SupabaseNewProvider({
 }) {
   const [retryAttempts, setRetryAttempts] = useState(0);
   const { axios } = useAxios();
-  // const [userDatas, setUserData] = useState<any>(null);
-  const { userData, isUserDataloading, refetchUserData } = UseUserContext();
-
-  const [isLoadingUserData, setIsLoadingUserData] = useState(true);
+  const { userData, isUserDataloading, fetchUserData } = UseUserContext();
   const router = useRouter();
 
   const {
@@ -37,9 +34,6 @@ export function SupabaseNewProvider({
 
       const { data } = await supabase.auth.getSession();
 
-      // const user = await fetchUserData();
-
-      // const sessionData = { ...data.session, dbUser: user };
       return { session: data.session as Session, supabase };
     },
   });
@@ -64,7 +58,7 @@ export function SupabaseNewProvider({
 
       // Clear react-query session data
       await refetchClient();
-      await refetchUserData();
+      await fetchUserData();
 
       // Optional: clear any axios tokens
       delete axios.defaults.headers["Authorization"];
@@ -75,7 +69,7 @@ export function SupabaseNewProvider({
       console.error("Logout failed:", err);
       toast.error("Logout failed. Please try again.");
     }
-  }, [router, axios, refetchClient, refetchUserData]);
+  }, [router, axios, refetchClient, fetchUserData]);
 
   async function signUpWithEmail(
     name: string,
@@ -89,9 +83,11 @@ export function SupabaseNewProvider({
 
     try {
       const res = await signUpUser(name, email, password, axios);
-      refetchUserData();
-      if (res.data) toast.success(res.data);
-      else toast.info(res.meta.message);
+      fetchUserData();
+      if (res.data) {
+        toast.success(res.data);
+        router.replace("/auth/login");
+      } else toast.info(res.meta.message);
     } catch (err: any) {
       toast.error(err?.response?.data?.meta?.message || err.message);
     }
@@ -123,10 +119,6 @@ export function SupabaseNewProvider({
       email,
       password,
     });
-
-    if (data) {
-      refetchUserData();
-    }
 
     if (error) {
       if (
@@ -177,10 +169,6 @@ export function SupabaseNewProvider({
   }
 
   useEffect(() => {
-    refetchUserData();
-  }, [session]);
-
-  useEffect(() => {
     if (!session?.access_token) return;
 
     const requestInterceptor = axios.interceptors.request.use(
@@ -224,6 +212,11 @@ export function SupabaseNewProvider({
       axios.interceptors.response.eject(responseInterceptor);
     };
   }, [session?.access_token]);
+
+  useEffect(() => {
+    if (!session) null;
+    fetchUserData();
+  }, [session]);
 
   return (
     <SupabaseContext.Provider

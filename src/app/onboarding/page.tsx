@@ -6,6 +6,7 @@ import DecorativeHeading from "@/components/common/DecorativeHeading";
 import ProfileSetup from "./partials/ProfileSetup";
 import TeamInvite from "./partials/TeamInvite";
 import { useSupabase } from "@/services/supabase/supabase.hook";
+import { USER_ROLES } from "../constant";
 
 export default function OnboardingPage() {
   const searchParams = useSearchParams();
@@ -37,9 +38,9 @@ export default function OnboardingPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <DecorativeHeading
-            text={userRole === "DEVELOPER" ? "Set Up" : "Team Members"}
+            text={userRole === USER_ROLES.DEVELOPER ? "Set Up" : "Team Members"}
             highlightText={
-              userRole === "PROJECT_MANAGER" ? "Profile" : "Invite"
+              userRole === USER_ROLES.PROJECT_MANAGER ? "Invite" : "Profile"
             }
           />
         </div>

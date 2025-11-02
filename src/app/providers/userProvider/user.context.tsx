@@ -1,13 +1,14 @@
 "use client";
 
-import { createContext, useContext } from "react";
-import { UserContextType } from "./user.types";
+import { createContext, useContext, useEffect } from "react";
+import { Propshook, UserContextType } from "./user.types";
+import { usePathname, useRouter } from "next/navigation";
+import { USER_ROLES } from "@/app/constant";
 
 export const UserContext = createContext<UserContextType | null>(null);
 
 export function UseUserContext() {
   const ctx = useContext(UserContext);
-  if (!ctx) throw new Error("use the hook inside the provider");
-
+  if (!ctx) throw new Error("UserContext missing");
   return ctx;
 }

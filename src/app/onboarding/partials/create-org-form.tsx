@@ -1,19 +1,30 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Loader, X } from "lucide-react";
-import Image from "next/image";
+import { useTransition } from "react";
+import { Loader } from "lucide-react";
 import DecorativeHeading from "@/components/common/DecorativeHeading";
-import Link from "next/link";
-import { useSupabase } from "@/services/supabase/supabase.hook";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createOrgSchema, CreateOrgSchemaType } from "../new-org/org.schema";
+import { useOrgHook } from "@/app/providers/orgProvider/org.hook";
 
 export default function CreateOrg() {
   const router = useRouter();
-  const [name, setName] = useState("");
   const [isLoading, startTransition] = useTransition();
-  const handleLogin = () => {
-    startTransition(async () => {});
+  const { createOrganization } = useOrgHook();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateOrgSchemaType>({
+    resolver: zodResolver(createOrgSchema),
+  });
+
+  const onSubmit = (data: CreateOrgSchemaType) => {
+    startTransition(async () => {
+      createOrganization(data);
+    });
   };
 
   return (
@@ -43,32 +54,60 @@ export default function CreateOrg() {
             <img src="/logo2.svg" alt="logo" className="h-8" />
           </div>
 
-          {/* Email Input */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Organization name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Freelancer"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FB5711] focus:border-[#FB5711] outline-none text-gray-900 placeholder-gray-400"
-            />
-          </div>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            {/* Org Name */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Organization Name
+              </label>
+              <input
+                type="text"
+                {...register("name")}
+                placeholder="Krivisio"
+                className={`w-full px-4 py-3 border ${
+                  errors.name ? "border-red-500" : "border-gray-300"
+                } rounded-lg focus:ring-2 focus:ring-[#FB5711] focus:border-[#FB5711] outline-none text-gray-900 placeholder-gray-400`}
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.name.message}
+                </p>
+              )}
+            </div>
 
-          {/* Login Button */}
-          <button
-            onClick={handleLogin}
-            className="w-full bg-[#FB5711] hover:bg-orange-600 text-white font-medium py-3 px-4 rounded-lg text-center flex justify-center transition-colors mb-6"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <Loader className="animate-spin text-center" size={20} />
-            ) : (
-              "Create"
-            )}
-          </button>
+            {/* Industry Type */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Industry Type
+              </label>
+              <input
+                type="text"
+                {...register("industry_type")}
+                placeholder="Freelancer"
+                className={`w-full px-4 py-3 border ${
+                  errors.industry_type ? "border-red-500" : "border-gray-300"
+                } rounded-lg focus:ring-2 focus:ring-[#FB5711] focus:border-[#FB5711] outline-none text-gray-900 placeholder-gray-400`}
+              />
+              {errors.industry_type && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.industry_type.message}
+                </p>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-[#FB5711] hover:bg-orange-600 text-white font-medium py-3 px-4 rounded-lg text-center flex justify-center transition-colors mb-6"
+            >
+              {isLoading ? (
+                <Loader className="animate-spin text-center" size={20} />
+              ) : (
+                "Create"
+              )}
+            </button>
+          </form>
         </div>
       </div>
     </div>
