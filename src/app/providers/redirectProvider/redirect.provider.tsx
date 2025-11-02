@@ -58,7 +58,7 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
         return router.replace("/management/dashboard");
       }
 
-      if (isOrgInvitePage === userData?.organization?.unique_name) {
+      if (isInvitePage && isOrgInvitePage) {
         return router.replace("/management/dashboard");
       }
 
