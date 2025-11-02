@@ -12,8 +12,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!session) return;
     if (!userData) return;
-    if (userData.role == "AUTHENTICATED")
-      return router.push("/auth/choose-role");
     else if (userData.role == "PROJECT_MANAGER")
       return router.push("/management/dashboard");
     else if (userData.role == "DEVELOPER")

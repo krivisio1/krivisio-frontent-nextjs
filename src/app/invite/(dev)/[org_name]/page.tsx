@@ -3,18 +3,17 @@
 import DecorativeHeading from "@/components/common/DecorativeHeading";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { JoinForm, joinSchema, JoinStatus } from "../invite.schema";
 import { useState } from "react";
 import { useOrgHook } from "@/app/providers/orgProvider/org.hook";
 import { ScreenLoader } from "@/components/loader";
 import { useRouter } from "next/navigation";
+import { JoinForm, joinSchema, JoinStatus } from "../../invite.schema";
 
 export default function JoinWorkspace() {
   const [showDeclineConfirm, setShowDeclineConfirm] = useState(false);
   const router = useRouter();
 
-  const { isInvitationfetching, devInvitation, respondToInvitation } =
-    useOrgHook();
+  const { devInvitation, respondToInvitation } = useOrgHook();
 
   const {
     handleSubmit,
@@ -37,9 +36,6 @@ export default function JoinWorkspace() {
     handleSubmit(() => onSubmit({ status: JoinStatus.DECLINED }))();
     setShowDeclineConfirm(false);
   };
-
-  if (isInvitationfetching) return <ScreenLoader />;
-
   const status = devInvitation?.status;
 
   const alreadyResponded = status && status !== JoinStatus.PENDING;

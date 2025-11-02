@@ -8,6 +8,7 @@ import {
   Users,
   LogOut,
   UserSquareIcon,
+  Bell,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,6 +19,7 @@ const sidebarIcons = [
   { icon: BarChart3, route: "/management/dashboard/board" },
   { icon: Calendar, route: "/management/dashboard/calendar" },
   { icon: Users, route: "/management/dashboard/team" },
+  { icon: Bell, route: "/management/dashboard/notification" },
 ];
 
 export const ExactSidebar = () => {
