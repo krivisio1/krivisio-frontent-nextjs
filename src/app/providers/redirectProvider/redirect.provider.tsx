@@ -20,7 +20,6 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
 
   const { isInvitationfetching, isSkipped, invitations } = useOrgHook();
 
-
   const router = useRouter();
   const pathname = usePathname();
 
