@@ -77,7 +77,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
 
     try {
       const res = await createInvitation(axios, data, userData.organization.id);
-      console.log({ res });
+
       if (res) {
         toast.success(res);
         getOrgInvitations();
@@ -150,7 +150,6 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
       if (isInvitePage && dynamicOrgName) {
         if (userData.role === USER_ROLES.DEVELOPER) {
           try {
-            console.log({ dynamicOrgName });
             const res = await getInvitationInfo(axios, dynamicOrgName);
             if (res) setDevInvitaiton(res);
           } catch (error: any) {

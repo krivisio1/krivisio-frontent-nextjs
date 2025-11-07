@@ -1,8 +1,9 @@
 "use client";
 
 import { createContext, useContext } from "react";
+import { ChatBotContextType } from "./chatbot.types";
 
-export const ChatBotContext = createContext<null | any>(null);
+export const ChatBotContext = createContext<ChatBotContextType | null>(null);
 
 export function useChatbot() {
   const ctx = useContext(ChatBotContext);

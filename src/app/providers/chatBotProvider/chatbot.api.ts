@@ -1,14 +1,12 @@
 import { AxiosInstance } from "axios";
-import { ChatBotData } from "./chatbot.type";
+import { CategoryData } from "./chatbot.types";
 
-export async function fetchChatbotResponse(
+export async function projectBreakdownApi(
   axios: AxiosInstance,
-  data: ChatBotData,
+  message: string,
 ) {
-  const res = await axios.post(
-    process.env.NEXT_PUBLIC_CHATBOT_API_URL + "/side-tools/cocomo2-parameters",
-    data,
-  );
-
-  return res?.data;
+  const res = await axios.post("/api/chatbot/project/breakdown", {
+    prompt: message,
+  });
+  return res?.data?.data;
 }

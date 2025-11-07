@@ -120,8 +120,6 @@ export function SupabaseNewProvider({
       password,
     });
 
-    console.log({ data, error });
-
     if (error) {
       if (
         error instanceof AuthApiError &&
@@ -173,7 +171,6 @@ export function SupabaseNewProvider({
     });
   }
 
-  console.log({ session });
   useEffect(() => {
     if (!session?.access_token) return;
 
