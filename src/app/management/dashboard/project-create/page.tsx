@@ -162,6 +162,7 @@ export default function ProjectBreakdown() {
                     <Button
                       variant="outline"
                       size="sm"
+                      disabled={isEditingDescription}
                       onClick={generateAgainHandler}
                       className="text-[#fb5711] border-[#fb5711] hover:bg-[#fb5711]/10"
                     >
@@ -202,7 +203,7 @@ export default function ProjectBreakdown() {
                 {/* Proceed button (right to Generate Other) */}
                 {!proceeded && (
                   <Button
-                    onClick={() => setShowProceedConfirm(false)}
+                    onClick={() => setShowProceedConfirm(true)}
                     size="lg"
                     className="rounded-sm w-[180px] px-8 py-5 bg-[#fb5711] hover:bg-[#fb5711]/90 text-white font-semibold"
                   >
@@ -301,8 +302,9 @@ export default function ProjectBreakdown() {
                 onClick={() => {
                   setProceeded(true);
                   setShowProceedConfirm(false);
-                  // close editing mode if open
                   setIsEditingDescription(false);
+                  setShowSRSDialog(true);
+                  generateSrsHandler();
                 }}
                 className="bg-[#fb5711] hover:bg-[#fb5711]/90 text-white"
               >
