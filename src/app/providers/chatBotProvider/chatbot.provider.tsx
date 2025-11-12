@@ -32,6 +32,8 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
   const { axios } = useAxios();
   const router = useRouter();
 
+  console.log({ srsContent });
+
   async function generateProjectBreakdown(message: string) {
     if (!message.trim()) return;
     try {

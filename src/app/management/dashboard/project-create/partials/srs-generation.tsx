@@ -21,7 +21,6 @@ interface SRSGenerationDialogProps {
 }
 
 export default function SRSGenerationDialog({
-  additionalInstructions,
   onClose,
   onGenerate,
   generating,
