@@ -130,7 +130,7 @@ export default function ProjectBreakdown() {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-b from-white to-[#fff6f2]">
+    <div className="flex h-screen w-full bg-gradient-to-b from-white to-[#fff6f2]">
       {/* History Sidebar */}
       <Sheet>
         <SheetTrigger asChild>

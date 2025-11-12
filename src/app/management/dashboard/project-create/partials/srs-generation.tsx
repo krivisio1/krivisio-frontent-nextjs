@@ -37,48 +37,7 @@ export default function SRSGenerationDialog({
 ## 1. Introduction
 
 ### 1.1 Purpose
-This document outlines the software requirements for a Library Management System (LMS) designed to manage a library catalog. It serves as a formal agreement between stakeholders and the development team, detailing functional and non-functional requirements to guide the design, development, and testing phases.
-
-### 1.2 Scope
-The LMS will enable librarians to manage books in the catalog, including adding, editing, and deleting entries. It will provide search functionality by title, author, or category, track book availability and borrowing status, and include a simple user authentication system for librarians. The system is intended for single-user or small-scale library use and does not include features for end-users (patrons) or advanced administrative functions.
-
-### 1.3 Definitions, Acronyms, and Abbreviations
-- **LMS**: Library Management System
-- **SQLite**: A lightweight, file-based SQL database engine
-- **Node.js**: A JavaScript runtime for server-side development
-- **Express**: A web application framework for Node.js
-- **UI**: User Interface
-- **CRUD**: Create, Read, Update, Delete operations
-
-## 2. Overall Description
-
-### 2.1 Product Perspective
-The LMS is a standalone web application with a client-server architecture. The frontend is built with HTML, CSS, and JavaScript, while the backend uses Node.js and Express. Data is persisted in an SQLite database. It operates independently without integration to external systems.
-
-### 2.2 Product Functions
-- Manage book catalog: Add, edit, delete books.
-- Search books by title, author, or category.
-- Track availability (e.g., available, borrowed) and borrowing status.
-- Authenticate librarians via a simple login system.
-
-### 2.3 User Classes and Characteristics
-- **Librarian**: The primary user, responsible for managing the catalog and viewing book status. Assumed to have basic computer literacy.
-
-## 3. Specific Requirements
-
-### 3.1 Functional Requirements
-- FR1: User authentication and authorization
-- FR2: Book catalog management (CRUD operations)
-- FR3: Search and filter functionality
-- FR4: Availability tracking system
-- FR5: Data persistence and backup
-
-### 3.2 Non-Functional Requirements
-- Performance: System should respond to user actions within 2 seconds
-- Security: All credentials must be encrypted
-- Availability: System should maintain 99% uptime
-- Scalability: Support for up to 100 concurrent users
-- Usability: Intuitive interface for librarians
+This document outlines the software requirements for a Library Management System (LMS)...
 
 ## 4. Additional Instructions
 ${additionalInstructions || "No additional instructions provided."}`;
@@ -96,8 +55,16 @@ ${additionalInstructions || "No additional instructions provided."}`;
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      {/* Increased dialog width and height */}
-      <DialogContent className="w-[95%] max-w-7xl h-[90vh] flex flex-col">
+      <DialogContent
+        className="
+          w-[90%]           /* base width */
+          !max-w-[70vw]      /* responsive max width */
+          h-[90vh]          /* large vertical space */
+          p-0               /* remove default padding for custom layout */
+          overflow-hidden   /* prevent layout shifts */
+          flex flex-col
+        "
+      >
         {step === "generating" && (
           <div className="flex flex-col items-center justify-center flex-1 gap-4">
             <Spinner />
@@ -107,27 +74,32 @@ ${additionalInstructions || "No additional instructions provided."}`;
 
         {step === "result" && (
           <>
-            <DialogHeader>
+            {/* Header */}
+            <DialogHeader className="px-6 pt-5 pb-3 border-b border-gray-200 bg-white/70 backdrop-blur-sm">
               <DialogTitle className="text-2xl font-bold text-[#fb5711]">
                 Generated SRS Document
               </DialogTitle>
             </DialogHeader>
 
-            {/* Scrollable content area only */}
-            <ScrollArea className="flex-1 border border-gray-200 p-4 bg-white/60 backdrop-blur-sm">
-              <div className="pr-4">
+            {/* Scrollable Markdown area */}
+            <ScrollArea className="flex-1 px-8 py-6 bg-white/70 backdrop-blur-sm">
+              <div className="w-full mx-auto pr-4">
                 <MarkdownRenderer content={srsContent} />
               </div>
             </ScrollArea>
 
-            {/* Buttons remain fixed below content */}
-            <div className="flex gap-3 pt-4 border-gray-200">
-              <Button onClick={onClose} variant="outline">
+            {/* Sticky footer buttons */}
+            <div className="flex justify-end gap-3 p-5 border-t border-gray-200 bg-white/80 backdrop-blur-sm">
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="border-[#fb5711] text-[#fb5711]"
+              >
                 Cancel
               </Button>
               <Button
                 onClick={onGenerate}
-                className="bg-[#fb5711] hover:bg-[#fb5711]/90 text-white ml-auto"
+                className="bg-[#fb5711] hover:bg-[#fb5711]/90 text-white"
               >
                 Submit SRS
               </Button>
