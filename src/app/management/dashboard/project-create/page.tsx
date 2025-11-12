@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -17,21 +17,15 @@ import {
   Step,
 } from "@/app/providers/chatBotProvider/chatbot.types";
 import { useChatbot } from "@/app/providers/chatBotProvider/chatbot.context";
+import { Description } from "@radix-ui/react-dialog";
 
 export default function ProjectBreakdown() {
-  const [description, setDescription] = useState("");
-  const [title, setTitle] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedCategoryContent, setSelectedCategoryContent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showSRSDialog, setShowSRSDialog] = useState(false);
+
   const [projects, setProjects] = useState<Project[]>([]);
-  const [srsGenerated, setSRSGenerated] = useState(false);
   const [additionalInstructions, setAdditionalInstructions] = useState("");
 
-  // 🔥 Added for inline editing of project description
-  const [isEditingDescription, setIsEditingDescription] = useState(false);
-  // const [editableDescription, setEditableDescription] = useState(description);
+  const [generating, startTransition] = useTransition();
 
   const {
     step,
@@ -39,7 +33,19 @@ export default function ProjectBreakdown() {
     categories,
     setCategories,
     editableDescription,
-    setEditableDescription,
+    setDescription,
+    description,
+    selectedCategory,
+    setTitle,
+    setSelectedCategory,
+    setSelectedCategoryContent,
+    generateProjectBreakdown,
+    setSRSGenerated,
+    setShowSRSDialog,
+    setIsEditingDescription,
+    isEditingDescription,
+    showSRSDialog,
+    generateSrs,
   } = useChatbot();
 
   const handleGenerateOther = async () => {
@@ -53,6 +59,13 @@ export default function ProjectBreakdown() {
     setStep("description");
     setLoading(false);
   };
+
+  function generateAgainHandler() {
+    startTransition(async () => {
+      setIsEditingDescription(false);
+      generateProjectBreakdown(description);
+    });
+  }
 
   const handleAddProject = (srsContent: string) => {
     const newProject: Project = {
@@ -73,6 +86,11 @@ export default function ProjectBreakdown() {
     setAdditionalInstructions("");
   };
 
+  function generateSrsHandler() {
+    startTransition(async () => {
+      generateSrs();
+    });
+  }
   return (
     <div className="flex h-screen bg-gradient-to-b from-white to-[#fff6f2]">
       {/* History Sidebar */}
@@ -128,22 +146,22 @@ export default function ProjectBreakdown() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setIsEditingDescription((prev) => !prev)}
+                      onClick={generateAgainHandler}
                       className="text-[#fb5711] border-[#fb5711] hover:bg-[#fb5711]/10"
                     >
-                      {isEditingDescription ? "Save" : "Edit"}
+                      {isEditingDescription ? "Generate Again" : "Edit"}
                     </Button>
                   </div>
 
-                  {isEditingDescription ? (
+                  {description ? (
                     <Textarea
-                      value={editableDescription}
-                      onChange={(e) => setEditableDescription(e.target.value)}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
                       className="min-h-32 border-[#fb5711]/30 focus:border-[#fb5711] text-sm"
                     />
                   ) : (
                     <p className="text-gray-700 whitespace-pre-line">
-                      {editableDescription || "No description provided."}
+                      {description || "No description provided."}
                     </p>
                   )}
                 </div>
@@ -193,10 +211,7 @@ export default function ProjectBreakdown() {
                   </div>
 
                   <Button
-                    onClick={() => {
-                      setSRSGenerated(true);
-                      setShowSRSDialog(true);
-                    }}
+                    onClick={generateSrsHandler}
                     size="lg"
                     className="px-10 py-5 bg-[#fb5711] hover:bg-[#fb5711]/90 text-white font-semibold rounded-sm"
                   >
@@ -212,6 +227,7 @@ export default function ProjectBreakdown() {
       {/* SRS Dialog */}
       {showSRSDialog && (
         <SRSGenerationDialog
+          generating={generating}
           additionalInstructions={additionalInstructions}
           onClose={() => setShowSRSDialog(false)}
           onGenerate={() => {
