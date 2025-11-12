@@ -135,11 +135,9 @@ export function SupabaseNewProvider({
       return;
     } else {
       toast.success("Signed in successfully!");
+      fetchUserData();
       refetch();
     }
-    fetchUserData();
-    toast.success("Signed in successfully!");
-    refetch();
   }
 
   async function signInWithGoogle() {

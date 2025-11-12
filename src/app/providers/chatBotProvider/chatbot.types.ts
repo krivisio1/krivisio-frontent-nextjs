@@ -47,4 +47,5 @@ export interface ChatBotContextType {
 
   // --- Actions ---
   generateProjectBreakdown: (message: string) => Promise<void>;
+  handleSelectCategory: (category: string, content: string) => void;
 }

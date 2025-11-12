@@ -32,6 +32,7 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   async function generateProjectBreakdown(message: string) {
+    if (!description.trim()) return;
     try {
       const res = await projectBreakdownApi(axios, message);
       setCategories(res);
@@ -48,6 +49,14 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const handleSelectCategory = (category: string, content: string) => {
+    console.log({ ajay2: category });
+    if (srsGenerated) return;
+    console.log({ ajay3: category });
+    setSelectedCategory(category);
+    setSelectedCategoryContent(content);
+  };
+
   // --- Context Value ---
   const value: ChatBotContextType = {
     step,
@@ -58,6 +67,7 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
     selectedCategoryContent,
     loading,
     showSRSDialog,
+    handleSelectCategory,
     projects,
     srsGenerated,
     additionalInstructions,

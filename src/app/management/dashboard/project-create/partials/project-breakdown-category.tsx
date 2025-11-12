@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MarkdownRenderer } from "./markdown-render";
+import { useChatbot } from "@/app/providers/chatBotProvider/chatbot.context";
 
 interface Category {
   category: string;
@@ -11,15 +12,13 @@ interface Category {
 
 interface ProjectBreakdownCategoriesProps {
   categories: Category[];
-  selectedCategory: string;
-  onSelectCategory: (category: string, content: string) => void;
 }
 
 export default function ProjectBreakdownCategories({
   categories,
-  selectedCategory,
-  onSelectCategory,
 }: ProjectBreakdownCategoriesProps) {
+  const { handleSelectCategory, selectedCategory } = useChatbot();
+
   const categoryColors: Record<string, string> = {
     simple: "bg-white border-slate-200 hover:border-slate-300",
     intermediate: "bg-white border-slate-200 hover:border-slate-300",
@@ -32,6 +31,8 @@ export default function ProjectBreakdownCategories({
     advanced: "bg-purple-100 text-purple-800",
   };
 
+  console.log({ ajay1: categories });
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
       {categories.map((category) => (
@@ -42,7 +43,9 @@ export default function ProjectBreakdownCategories({
               ? "border-[#fb5711] bg-[#fb5711]/5 shadow-md scale-[1.02]"
               : categoryColors[category.category]
           }`}
-          onClick={() => onSelectCategory(category.category, category.content)}
+          onClick={() =>
+            handleSelectCategory(category.category, category.content)
+          }
         >
           <CardHeader>
             <div className="flex items-center justify-between">

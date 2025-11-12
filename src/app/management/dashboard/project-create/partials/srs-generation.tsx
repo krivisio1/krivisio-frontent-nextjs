@@ -13,16 +13,12 @@ import { MarkdownRenderer } from "./markdown-render";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface SRSGenerationDialogProps {
-  categoryContent: string;
-  selectedCategory: string;
   additionalInstructions: string;
   onClose: () => void;
   onGenerate: () => void;
 }
 
 export default function SRSGenerationDialog({
-  categoryContent,
-  selectedCategory,
   additionalInstructions,
   onClose,
   onGenerate,
