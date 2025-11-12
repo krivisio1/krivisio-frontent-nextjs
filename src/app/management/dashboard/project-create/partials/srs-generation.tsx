@@ -39,7 +39,8 @@ export default function SRSGenerationDialog({
           </div>
         ) : (
           <>
-            <DialogHeader>
+            {/* Header */}
+            <DialogHeader className="px-6 pt-5 pb-3 border-b border-gray-200 bg-white/70 backdrop-blur-sm">
               <DialogTitle className="text-2xl font-bold text-[#fb5711]">
                 Generated SRS Document
               </DialogTitle>
@@ -52,14 +53,18 @@ export default function SRSGenerationDialog({
               </div>
             </ScrollArea>
 
-            {/* Buttons remain fixed below content */}
-            <div className="flex gap-3 pt-4 border-gray-200">
-              <Button onClick={onClose} variant="outline">
+            {/* Sticky footer buttons */}
+            <div className="flex justify-end gap-3 p-5 border-t border-gray-200 bg-white/80 backdrop-blur-sm">
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="border-[#fb5711] text-[#fb5711]"
+              >
                 Cancel
               </Button>
               <Button
                 onClick={onGenerate}
-                className="bg-[#fb5711] hover:bg-[#fb5711]/90 text-white ml-auto"
+                className="bg-[#fb5711] hover:bg-[#fb5711]/90 text-white"
               >
                 Submit SRS
               </Button>
