@@ -75,6 +75,12 @@ export default function ProjectBreakdown() {
     });
   }
 
+  const handleGenerateOtherConfirmed = () => {
+    // user confirmed navigating/creating new project
+    setShowNavigateConfirm(false);
+    handleGenerateOther();
+  };
+
   const handleAddProject = (srsContent: string) => {
     const newProject: Project = {
       id: Date.now().toString(),
