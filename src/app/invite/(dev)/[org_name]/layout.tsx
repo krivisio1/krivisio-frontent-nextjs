@@ -13,14 +13,11 @@ export default function InviteLayout({
 }: {
   children: React.ReactNode;
 }) {
-  console.log("IN ORG INVITE 1");
-
   const { isLoading, authorised } = useRedirect({
     role: ["DEVELOPER"],
     redirectTo: "/unauthorized",
   });
 
-  console.log("IN ORG INVITE");
   if (isLoading || !authorised) return <ScreenLoader />;
 
   return <>{children}</>;

@@ -120,8 +120,6 @@ export function SupabaseNewProvider({
       password,
     });
 
-    console.log({ data, error });
-
     if (error) {
       if (
         error instanceof AuthApiError &&
@@ -137,11 +135,9 @@ export function SupabaseNewProvider({
       return;
     } else {
       toast.success("Signed in successfully!");
+      fetchUserData();
       refetch();
     }
-    fetchUserData();
-    toast.success("Signed in successfully!");
-    refetch();
   }
 
   async function signInWithGoogle() {
@@ -173,7 +169,6 @@ export function SupabaseNewProvider({
     });
   }
 
-  console.log({ session });
   useEffect(() => {
     if (!session?.access_token) return;
 

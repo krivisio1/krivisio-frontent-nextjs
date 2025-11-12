@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MarkdownRenderer } from "./markdown-render";
+import { useChatbot } from "@/app/providers/chatBotProvider/chatbot.context";
 
 interface Category {
   category: string;
@@ -11,19 +12,17 @@ interface Category {
 
 interface ProjectBreakdownCategoriesProps {
   categories: Category[];
-  selectedCategory: string;
-  onSelectCategory: (category: string, content: string) => void;
 }
 
 export default function ProjectBreakdownCategories({
   categories,
-  selectedCategory,
-  onSelectCategory,
 }: ProjectBreakdownCategoriesProps) {
+  const { handleSelectCategory, selectedCategory } = useChatbot();
+
   const categoryColors: Record<string, string> = {
-    simple: "bg-slate-50 border-slate-200 hover:border-slate-300",
-    intermediate: "bg-slate-50 border-slate-200 hover:border-slate-300",
-    advanced: "bg-slate-50 border-slate-200 hover:border-slate-300",
+    simple: "bg-white border-slate-200 hover:border-slate-300",
+    intermediate: "bg-white border-slate-200 hover:border-slate-300",
+    advanced: "bg-white border-slate-200 hover:border-slate-300",
   };
 
   const categoryBadgeColors: Record<string, string> = {
@@ -33,20 +32,22 @@ export default function ProjectBreakdownCategories({
   };
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
       {categories.map((category) => (
         <Card
           key={category.category}
-          className={`flex-shrink-0 w-80 cursor-pointer transition-all border-2 ${
+          className={`cursor-pointer transition-all border-2 duration-300 ${
             selectedCategory === category.category
-              ? "border-[#fb5711] bg-[#fb5711]/5 shadow-md"
+              ? "border-[#fb5711] bg-[#fb5711]/5 shadow-md scale-[1.02]"
               : categoryColors[category.category]
           }`}
-          onClick={() => onSelectCategory(category.category, category.content)}
+          onClick={() =>
+            handleSelectCategory(category.category, category.content)
+          }
         >
           <CardHeader>
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold text-foreground capitalize">
+              <h3 className="text-xl font-semibold text-foreground capitalize">
                 {category.category}
               </h3>
               <Badge className={categoryBadgeColors[category.category]}>

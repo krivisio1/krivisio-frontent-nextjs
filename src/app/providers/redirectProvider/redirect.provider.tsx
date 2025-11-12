@@ -29,10 +29,6 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isLoading) return;
 
-    console.log("ajay 1");
-
-    console.log({ userData });
-
     const { role, dev_profile, organization } = userData || {};
     const pathParts = pathname.split("/").filter(Boolean);
     const isInvitePage = pathParts[0] === "invite";
@@ -43,6 +39,7 @@ export function RedirectProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("redirectAfterLogin", pathname);
         return router.replace("/auth/login");
       }
+
       return;
     }
 
@@ -111,17 +108,14 @@ export function useRedirect(props: UseRedirectType) {
 
   // if (isUserDataloading) return { ...context, authorised: false };
 
-  console.log({ userData });
   const authorised = !!(props?.role && props.role.includes(userData?.role!));
 
   useEffect(() => {
     if (context.isLoading || isUserDataloading) return;
 
-    console.log({ authorised, session }, "REDIRECT CHECK");
     if (!session || !authorised) {
       router.replace(props?.redirectTo ?? "/");
     }
-    console.log("passed");
   }, [session, pathname, authorised, userData]);
 
   return { ...context, authorised };

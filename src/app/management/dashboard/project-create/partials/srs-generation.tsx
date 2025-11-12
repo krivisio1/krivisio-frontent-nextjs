@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,118 +11,68 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { MarkdownRenderer } from "./markdown-render";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useChatbot } from "@/app/providers/chatBotProvider/chatbot.context";
 
 interface SRSGenerationDialogProps {
-  categoryContent: string;
-  selectedCategory: string;
   additionalInstructions: string;
   onClose: () => void;
   onGenerate: () => void;
+  generating: boolean;
 }
 
 export default function SRSGenerationDialog({
-  categoryContent,
-  selectedCategory,
-  additionalInstructions,
   onClose,
   onGenerate,
+  generating,
 }: SRSGenerationDialogProps) {
-  const [step, setStep] = useState<"generating" | "result">("generating");
-  const [srsContent, setSRSContent] = useState("");
-
-  const generateSRS = async () => {
-    try {
-      // Mock SRS with the actual format provided
-      const mockSRS = `# Software Requirements Specification (SRS)
-
-## 1. Introduction
-
-### 1.1 Purpose
-This document outlines the software requirements for a Library Management System (LMS) designed to manage a library catalog. It serves as a formal agreement between stakeholders and the development team, detailing functional and non-functional requirements to guide the design, development, and testing phases.
-
-### 1.2 Scope
-The LMS will enable librarians to manage books in the catalog, including adding, editing, and deleting entries. It will provide search functionality by title, author, or category, track book availability and borrowing status, and include a simple user authentication system for librarians. The system is intended for single-user or small-scale library use and does not include features for end-users (patrons) or advanced administrative functions.
-
-### 1.3 Definitions, Acronyms, and Abbreviations
-- **LMS**: Library Management System
-- **SQLite**: A lightweight, file-based SQL database engine
-- **Node.js**: A JavaScript runtime for server-side development
-- **Express**: A web application framework for Node.js
-- **UI**: User Interface
-- **CRUD**: Create, Read, Update, Delete operations
-
-## 2. Overall Description
-
-### 2.1 Product Perspective
-The LMS is a standalone web application with a client-server architecture. The frontend is built with HTML, CSS, and JavaScript, while the backend uses Node.js and Express. Data is persisted in an SQLite database. It operates independently without integration to external systems.
-
-### 2.2 Product Functions
-- Manage book catalog: Add, edit, delete books.
-- Search books by title, author, or category.
-- Track availability (e.g., available, borrowed) and borrowing status.
-- Authenticate librarians via a simple login system.
-
-### 2.3 User Classes and Characteristics
-- **Librarian**: The primary user, responsible for managing the catalog and viewing book status. Assumed to have basic computer literacy.
-
-## 3. Specific Requirements
-
-### 3.1 Functional Requirements
-- FR1: User authentication and authorization
-- FR2: Book catalog management (CRUD operations)
-- FR3: Search and filter functionality
-- FR4: Availability tracking system
-- FR5: Data persistence and backup
-
-### 3.2 Non-Functional Requirements
-- Performance: System should respond to user actions within 2 seconds
-- Security: All credentials must be encrypted
-- Availability: System should maintain 99% uptime
-- Scalability: Support for up to 100 concurrent users
-- Usability: Intuitive interface for librarians
-
-## 4. Additional Instructions
-${additionalInstructions || "No additional instructions provided."}`;
-
-      setSRSContent(mockSRS);
-      setStep("result");
-    } catch (error) {
-      console.error("Error generating SRS:", error);
-    }
-  };
-
-  useEffect(() => {
-    generateSRS();
-  }, []);
+  const { srsContent, setSRSContent, generateSrs } = useChatbot();
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="w-[80%] max-w-4xl max-h-[90vh] flex flex-col">
-        {step === "generating" && (
-          <div className="flex flex-col items-center justify-center py-12 gap-4">
+      {/* Increased dialog width and height */}
+      <DialogContent
+        className="
+        w-[90%]
+        !max-w-[70vw]
+        h-[90vh]
+        p-0
+        overflow-hidden
+        flex flex-col
+      "
+      >
+        {generating ? (
+          <div className="flex flex-col items-center justify-center flex-1 gap-4">
             <Spinner />
             <p className="text-muted-foreground">Generating SRS document...</p>
           </div>
-        )}
-
-        {step === "result" && (
+        ) : (
           <>
-            <DialogHeader>
-              <DialogTitle>Generated SRS Document</DialogTitle>
+            {/* Header */}
+            <DialogHeader className="px-6 pt-5 pb-3 border-b border-gray-200 bg-white/70 backdrop-blur-sm">
+              <DialogTitle className="text-2xl font-bold text-[#fb5711]">
+                Generated SRS Document
+              </DialogTitle>
             </DialogHeader>
-            <ScrollArea className="flex-1">
+
+            {/* Scrollable content area only */}
+            <ScrollArea className="flex-1 border border-gray-200 p-4 bg-white/60 backdrop-blur-sm">
               <div className="pr-4">
-                <MarkdownRenderer content={srsContent} />
+                <MarkdownRenderer content={srsContent ?? ""} />
               </div>
             </ScrollArea>
 
-            <div className="flex gap-3 pt-4 border-t">
-              <Button onClick={onClose} variant="outline">
+            {/* Sticky footer buttons */}
+            <div className="flex justify-end gap-3 p-5 border-t border-gray-200 bg-white/80 backdrop-blur-sm">
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="border-[#fb5711] text-[#fb5711]"
+              >
                 Cancel
               </Button>
               <Button
                 onClick={onGenerate}
-                className="bg-[#fb5711] hover:bg-[#fb5711]/90 text-white ml-auto"
+                className="bg-[#fb5711] hover:bg-[#fb5711]/90 text-white"
               >
                 Submit SRS
               </Button>
