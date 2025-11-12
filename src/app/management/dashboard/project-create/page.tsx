@@ -25,10 +25,7 @@ export default function ProjectBreakdown() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [additionalInstructions, setAdditionalInstructions] = useState("");
 
-
   const [generating, startTransition] = useTransition();
-
- 
 
   const {
     step,
@@ -49,6 +46,7 @@ export default function ProjectBreakdown() {
     isEditingDescription,
     showSRSDialog,
     generateSrs,
+    title,
   } = useChatbot();
 
   const handleGenerateOther = async () => {
