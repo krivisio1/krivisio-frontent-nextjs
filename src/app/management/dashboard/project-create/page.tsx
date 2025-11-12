@@ -27,6 +27,10 @@ export default function ProjectBreakdown() {
 
   const [generating, startTransition] = useTransition();
 
+  const [showProceedConfirm, setShowProceedConfirm] = useState(false);
+  const [proceeded, setProceeded] = useState(false); // true after user confirms proceed
+  const [showNavigateConfirm, setShowNavigateConfirm] = useState(false); // confirm before Generate Other navigation
+
   const {
     step,
     setStep,
