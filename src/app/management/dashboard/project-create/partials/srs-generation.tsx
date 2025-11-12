@@ -31,7 +31,7 @@ export default function SRSGenerationDialog({
   return (
     <Dialog open={true} onOpenChange={onClose}>
       {/* Increased dialog width and height */}
-      <DialogContent className="w-[95%] max-w-7xl h-[90vh] flex flex-col">
+      <DialogContent className="w-[95%] w-8xl h-[90vh] flex flex-col">
         {generating ? (
           <div className="flex flex-col items-center justify-center flex-1 gap-4">
             <Spinner />

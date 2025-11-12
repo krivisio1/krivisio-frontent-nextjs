@@ -202,7 +202,7 @@ export default function ProjectBreakdown() {
                 {/* Proceed button (right to Generate Other) */}
                 {!proceeded && (
                   <Button
-                    onClick={generateSrsHandler}
+                    onClick={() => setShowProceedConfirm(false)}
                     size="lg"
                     className="rounded-sm w-[180px] px-8 py-5 bg-[#fb5711] hover:bg-[#fb5711]/90 text-white font-semibold"
                   >
