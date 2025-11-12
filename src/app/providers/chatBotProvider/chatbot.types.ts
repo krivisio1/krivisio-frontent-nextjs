@@ -29,6 +29,7 @@ export interface ChatBotContextType {
   additionalInstructions: string;
   isEditingDescription: boolean;
   editableDescription: string;
+  srsContent: string | null;
 
   // --- Setters ---
   setStep: React.Dispatch<React.SetStateAction<Step>>;
@@ -44,7 +45,10 @@ export interface ChatBotContextType {
   setAdditionalInstructions: React.Dispatch<React.SetStateAction<string>>;
   setIsEditingDescription: React.Dispatch<React.SetStateAction<boolean>>;
   setEditableDescription: React.Dispatch<React.SetStateAction<string>>;
+  setSRSContent: React.Dispatch<React.SetStateAction<string | null>>;
 
   // --- Actions ---
   generateProjectBreakdown: (message: string) => Promise<void>;
+  handleSelectCategory: (category: string, content: string) => void;
+  generateSrs: () => void;
 }

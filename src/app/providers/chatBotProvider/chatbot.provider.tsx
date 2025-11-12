@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChatBotContext } from "./chatbot.context";
 import { useAxios } from "@/services/axios/axios.hook";
-import { projectBreakdownApi } from "./chatbot.api";
+import { generateSrsApi, projectBreakdownApi } from "./chatbot.api";
 import {
   CategoryData,
   Project,
@@ -27,11 +27,13 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
   const [additionalInstructions, setAdditionalInstructions] = useState("");
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [editableDescription, setEditableDescription] = useState(description);
+  const [srsContent, setSRSContent] = useState<string | null>(null);
 
   const { axios } = useAxios();
   const router = useRouter();
 
   async function generateProjectBreakdown(message: string) {
+    if (!message.trim()) return;
     try {
       const res = await projectBreakdownApi(axios, message);
       setCategories(res);
@@ -48,6 +50,25 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  async function generateSrs() {
+    try {
+      const res = await generateSrsApi(axios, selectedCategoryContent);
+
+      if (res) {
+        setSRSContent(res);
+        setShowSRSDialog(true);
+        setSRSGenerated(true);
+      }
+    } catch (err: any) {}
+  }
+
+  const handleSelectCategory = (category: string, content: string) => {
+    if (srsGenerated) return;
+
+    setSelectedCategory(category);
+    setSelectedCategoryContent(content);
+  };
+
   // --- Context Value ---
   const value: ChatBotContextType = {
     step,
@@ -58,11 +79,13 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
     selectedCategoryContent,
     loading,
     showSRSDialog,
+    handleSelectCategory,
     projects,
     srsGenerated,
     additionalInstructions,
     isEditingDescription,
     editableDescription,
+    srsContent,
 
     setStep,
     setDescription,
@@ -77,8 +100,10 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
     setAdditionalInstructions,
     setIsEditingDescription,
     setEditableDescription,
+    setSRSContent,
 
     generateProjectBreakdown,
+    generateSrs,
   };
 
   return (

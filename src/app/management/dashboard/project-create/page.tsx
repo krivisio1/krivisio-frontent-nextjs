@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -17,25 +17,18 @@ import {
   Step,
 } from "@/app/providers/chatBotProvider/chatbot.types";
 import { useChatbot } from "@/app/providers/chatBotProvider/chatbot.context";
+import { Description } from "@radix-ui/react-dialog";
 
 export default function ProjectBreakdown() {
-  const [description, setDescription] = useState("");
-  const [title, setTitle] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedCategoryContent, setSelectedCategoryContent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showSRSDialog, setShowSRSDialog] = useState(false);
+
   const [projects, setProjects] = useState<Project[]>([]);
-  const [srsGenerated, setSRSGenerated] = useState(false);
   const [additionalInstructions, setAdditionalInstructions] = useState("");
 
-  // 🔥 Added for inline editing of project description
-  const [isEditingDescription, setIsEditingDescription] = useState(false);
 
-  // New states for proceed & confirmations
-  const [showProceedConfirm, setShowProceedConfirm] = useState(false);
-  const [proceeded, setProceeded] = useState(false); // true after user confirms proceed
-  const [showNavigateConfirm, setShowNavigateConfirm] = useState(false); // confirm before Generate Other navigation
+  const [generating, startTransition] = useTransition();
+
+ 
 
   const {
     step,
@@ -43,55 +36,20 @@ export default function ProjectBreakdown() {
     categories,
     setCategories,
     editableDescription,
-    setEditableDescription,
+    setDescription,
+    description,
+    selectedCategory,
+    setTitle,
+    setSelectedCategory,
+    setSelectedCategoryContent,
     generateProjectBreakdown,
+    setSRSGenerated,
+    setShowSRSDialog,
+    setIsEditingDescription,
+    isEditingDescription,
+    showSRSDialog,
+    generateSrs,
   } = useChatbot();
-
-  const handleGenerateBreakdown = async () => {
-    if (!description.trim()) return;
-    setLoading(true);
-    try {
-      const mockResponse: CategoryData[] = [
-        {
-          category: "simple",
-          content:
-            "## Features\n- Add, edit, and delete books from the library catalog\n- Search for books by title, author, or category\n- Track book availability and borrowing status\n- Simple user authentication for librarians\n\n## Team\n- 1 Developer (full-stack)\n\n## Technologies\n- Frontend: HTML, CSS, JavaScript\n- Backend: Node.js with Express\n- Database: SQLite\n\n## Duration\n2-3 weeks",
-        },
-        {
-          category: "intermediate",
-          content:
-            "## Features\n- All simple features plus:\n- User registration and role management (librarian/borrower)\n- Borrowing and returning books with due dates\n- Fine calculation for overdue books\n- Email notifications for due dates and fines\n- Advanced search with filters and sorting\n\n## Team\n- 2 Developers (frontend and backend)\n- 1 UI/UX Designer\n\n## Technologies\n- Frontend: React.js with Bootstrap\n- Backend: Python with Django or Flask\n- Database: PostgreSQL\n- Email service: SendGrid or SMTP\n\n## Duration\n4-6 weeks",
-        },
-        {
-          category: "advanced",
-          content:
-            "## Features\n- All intermediate features plus:\n- Barcode/QR code scanning for book management\n- Multi-branch library support\n- Real-time inventory updates\n- Advanced reporting and analytics dashboard\n- Integration with external APIs (e.g., ISBN lookup)\n- Mobile app for borrowers\n- AI-powered book recommendations\n- Automated book reservation system\n\n## Team\n- 3-4 Developers (frontend, backend, mobile)\n- 1 UI/UX Designer\n- 1 DevOps/QA Engineer\n\n## Technologies\n- Frontend: React.js with Material-UI\n- Backend: Java with Spring Boot or .NET Core\n- Mobile: React Native or Flutter\n- Database: MySQL or MongoDB with Redis caching\n- Cloud: AWS or Azure\n- APIs: RESTful and GraphQL\n\n## Duration\n3-5 months",
-        },
-      ];
-      setCategories(mockResponse);
-      setStep("categories");
-      setSelectedCategory("");
-      setSelectedCategoryContent("");
-      setSRSGenerated(false);
-      setAdditionalInstructions("");
-    } catch (error) {
-      console.error("Error generating breakdown:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSelectCategory = (category: string, content: string) => {
-    if (srsGenerated || proceeded) return;
-    setSelectedCategory(category);
-    setSelectedCategoryContent(content);
-  };
-
-  const handleGenerateOtherConfirmed = () => {
-    // user confirmed navigating/creating new project
-    setShowNavigateConfirm(false);
-    handleGenerateOther();
-  };
 
   const handleGenerateOther = async () => {
     // original behavior: clear and go to project create page (we keep same state reset)
@@ -107,6 +65,13 @@ export default function ProjectBreakdown() {
     // reset proceed state because user left to create new project
     setProceeded(false);
   };
+
+  function generateAgainHandler() {
+    startTransition(async () => {
+      setIsEditingDescription(false);
+      generateProjectBreakdown(description);
+    });
+  }
 
   const handleAddProject = (srsContent: string) => {
     const newProject: Project = {
@@ -129,6 +94,11 @@ export default function ProjectBreakdown() {
     setIsEditingDescription(false);
   };
 
+  function generateSrsHandler() {
+    startTransition(async () => {
+      generateSrs();
+    });
+  }
   return (
     <div className="flex h-screen w-full bg-gradient-to-b from-white to-[#fff6f2]">
       {/* History Sidebar */}
@@ -181,39 +151,31 @@ export default function ProjectBreakdown() {
                     <h3 className="text-lg font-semibold text-[#fb5711]">
                       Project Description
                     </h3>
-
-                    {/* Hide Edit/Save button once user confirmed Proceed */}
-                    {!proceeded && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setIsEditingDescription((prev) => !prev)}
-                        className="text-[#fb5711] border-[#fb5711] hover:bg-[#fb5711]/10"
-                      >
-                        {isEditingDescription ? "Save" : "Edit"}
-                      </Button>
-                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={generateAgainHandler}
+                      className="text-[#fb5711] border-[#fb5711] hover:bg-[#fb5711]/10"
+                    >
+                      {isEditingDescription ? "Generate Again" : "Edit"}
+                    </Button>
                   </div>
 
-                  {isEditingDescription && !proceeded ? (
+                  {description ? (
                     <Textarea
-                      value={editableDescription}
-                      onChange={(e) => setEditableDescription(e.target.value)}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
                       className="min-h-32 border-[#fb5711]/30 focus:border-[#fb5711] text-sm"
                     />
                   ) : (
                     <p className="text-gray-700 whitespace-pre-line">
-                      {editableDescription || "No description provided."}
+                      {description || "No description provided."}
                     </p>
                   )}
                 </div>
               </div>
 
-              <ProjectBreakdownCategories
-                categories={categories}
-                selectedCategory={selectedCategory}
-                onSelectCategory={handleSelectCategory}
-              />
+              <ProjectBreakdownCategories categories={categories} />
 
               <div className="flex justify-center gap-4">
                 {/* Generate Other: show confirmation modal before performing */}
@@ -232,7 +194,7 @@ export default function ProjectBreakdown() {
                 {/* Proceed button (right to Generate Other) */}
                 {!proceeded && (
                   <Button
-                    onClick={() => setShowProceedConfirm(true)}
+                    onClick={generateSrsHandler}
                     size="lg"
                     className="rounded-sm w-[180px] px-8 py-5 bg-[#fb5711] hover:bg-[#fb5711]/90 text-white font-semibold"
                   >
@@ -293,8 +255,7 @@ export default function ProjectBreakdown() {
       {/* SRS Dialog */}
       {showSRSDialog && (
         <SRSGenerationDialog
-          categoryContent={selectedCategoryContent}
-          selectedCategory={selectedCategory}
+          generating={generating}
           additionalInstructions={additionalInstructions}
           onClose={() => setShowSRSDialog(false)}
           onGenerate={() => {

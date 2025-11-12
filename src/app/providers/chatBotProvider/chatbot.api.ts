@@ -10,3 +10,10 @@ export async function projectBreakdownApi(
   });
   return res?.data?.data;
 }
+
+export async function generateSrsApi(axios: AxiosInstance, prompt: string) {
+  const res = await axios.post("/api/chatbot/project/srs", {
+    prompt,
+  });
+  return res?.data?.data;
+}
