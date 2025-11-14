@@ -51,6 +51,7 @@ export default function ProjectBreakdown() {
     showSRSDialog,
     generateSrs,
     title,
+    srsContent,
   } = useChatbot();
 
   const handleGenerateOther = async () => {
@@ -243,16 +244,30 @@ export default function ProjectBreakdown() {
                       />
                     </div>
 
-                    <Button
-                      onClick={() => {
-                        setSRSGenerated(true);
-                        setShowSRSDialog(true);
-                      }}
-                      size="lg"
-                      className="px-10 py-5 bg-[#fb5711] hover:bg-[#fb5711]/90 text-white font-semibold rounded-sm"
-                    >
-                      Generate SRS
-                    </Button>
+                    {srsContent ? (
+                      <Button
+                        onClick={() => {
+                          setSRSGenerated(true);
+                          setShowSRSDialog(true);
+                        }}
+                        size="lg"
+                        className="px-10 py-5 bg-[#fb5711] hover:bg-[#fb5711]/90 text-white font-semibold rounded-sm"
+                      >
+                        Show SRS
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => {
+                          setSRSGenerated(true);
+                          setShowSRSDialog(true);
+                          generateSrsHandler();
+                        }}
+                        size="lg"
+                        className="px-10 py-5 bg-[#fb5711] hover:bg-[#fb5711]/90 text-white font-semibold rounded-sm"
+                      >
+                        Generate SRS
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -303,8 +318,6 @@ export default function ProjectBreakdown() {
                   setProceeded(true);
                   setShowProceedConfirm(false);
                   setIsEditingDescription(false);
-                  setShowSRSDialog(true);
-                  generateSrsHandler();
                 }}
                 className="bg-[#fb5711] hover:bg-[#fb5711]/90 text-white"
               >
