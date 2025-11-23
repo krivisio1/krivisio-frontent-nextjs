@@ -44,8 +44,12 @@ export default function ProjectBreakdownCategories({
       : [];
 
   // ✅ Show error modal if categories is not an array or empty
+  //
+  //
+  console.log("categories", categories);
   React.useEffect(() => {
     if (!Array.isArray(categories) || validCategories.length === 0) {
+      console.log("ajay");
       setShowErrorDialog(true);
     } else {
       setShowErrorDialog(false);

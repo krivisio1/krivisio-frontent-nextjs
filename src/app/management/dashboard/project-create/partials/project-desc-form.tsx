@@ -38,7 +38,7 @@ export default function ProjectDescForm() {
 
   const onSubmit = (data: ProjectFormValues) => {
     startTransition(async () => {
-      await generateProjectBreakdown(data.description);
+      await generateProjectBreakdown(data.description, data.title);
     });
   };
 
@@ -88,7 +88,7 @@ export default function ProjectDescForm() {
               size="lg"
               className="px-8 py-5 text-lg bg-[#fb5711] hover:bg-[#fb5711]/90 text-white font-semibold rounded-sm shadow-md"
             >
-              {loading ? "Generating..." : "Generate Breakdown"}
+              {loading ? "Creating..." : "Create Project"}
             </Button>
           </div>
         </form>

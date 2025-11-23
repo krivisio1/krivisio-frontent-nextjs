@@ -1,9 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChatBotContext } from "./chatbot.context";
 import { useAxios } from "@/services/axios/axios.hook";
-import { generateSrsApi, projectBreakdownApi } from "./chatbot.api";
+import {
+  generateSrsApi,
+  getProjectDetailsApi,
+  projectBreakdownApi,
+  updateProjectApi,
+} from "./chatbot.api";
 import {
   CategoryData,
   Project,
@@ -11,7 +16,7 @@ import {
   ChatBotContextType,
 } from "./chatbot.types";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export function ChatBotProvider({ children }: { children: React.ReactNode }) {
   const [step, setStep] = useState<Step>("description");
@@ -31,24 +36,39 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
 
   const { axios } = useAxios();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  console.log({ srsContent });
-
-  async function generateProjectBreakdown(message: string) {
-    if (!message.trim()) return;
+  async function generateProjectBreakdown(message: string, p_title: string) {
+    if (!message.trim() || !p_title.trim()) {
+      toast.error("Please provide both title and description.");
+      return;
+    }
     try {
-      const res = await projectBreakdownApi(axios, message);
-      setCategories(res);
+      const res = await projectBreakdownApi(axios, p_title, message);
+      setCategories(res.data);
       setStep("categories");
       setSelectedCategory("");
       setSelectedCategoryContent("");
       setSRSGenerated(false);
       setAdditionalInstructions("");
-
-      setEditableDescription(description);
+      setDescription(message);
+      setTitle(p_title);
+      router.replace("?project_id=" + res.project.id);
     } catch (error) {
       console.log(error);
       toast.error("Failed to generate project breakdown. Please try again.");
+    }
+  }
+
+  async function updateProjectData() {
+    const projectId = searchParams.get("project_id");
+    if (!projectId) return;
+
+    try {
+      const res = await updateProjectApi(axios, title, description, projectId);
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to load project.");
     }
   }
 
@@ -71,7 +91,29 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
     setSelectedCategoryContent(content);
   };
 
-  // --- Context Value ---
+  useEffect(() => {
+    const projectId = searchParams.get("project_id");
+    if (!projectId) return;
+
+    async function loadProject() {
+      try {
+        const res = await getProjectDetailsApi(axios, projectId!);
+
+        setTitle(res.project_title);
+        setDescription(res.description);
+        setCategories([]);
+        setSelectedCategory("");
+        setSelectedCategoryContent("");
+        setStep("categories"); // Go directly to categories page
+      } catch (err) {
+        console.log(err);
+        toast.error("Failed to load project.");
+      }
+    }
+
+    loadProject();
+  }, [searchParams]);
+
   const value: ChatBotContextType = {
     step,
     description,
@@ -106,6 +148,7 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
 
     generateProjectBreakdown,
     generateSrs,
+    updateProjectData,
   };
 
   return (
