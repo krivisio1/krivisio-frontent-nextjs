@@ -51,6 +51,7 @@ export default function ProjectBreakdown() {
     showSRSDialog,
     generateSrs,
     title,
+    updateProjectData,
     srsContent,
   } = useChatbot();
 
@@ -70,10 +71,14 @@ export default function ProjectBreakdown() {
   };
 
   function generateAgainHandler() {
-    startTransition(async () => {
-      setIsEditingDescription(false);
-      generateProjectBreakdown(description);
-    });
+    if (isEditingDescription) {
+      startTransition(async () => {
+        setIsEditingDescription(false);
+        updateProjectData();
+      });
+    } else {
+      setIsEditingDescription(true);
+    }
   }
 
   const handleGenerateOtherConfirmed = () => {
@@ -108,6 +113,7 @@ export default function ProjectBreakdown() {
       await generateSrs();
     });
   }
+
   return (
     <div className="flex h-screen w-full bg-gradient-to-b from-white to-[#fff6f2]">
       {/* History Sidebar */}
@@ -144,7 +150,7 @@ export default function ProjectBreakdown() {
             </div>
           )}
 
-          {step === "categories" && categories.length > 0 && (
+          {step === "categories" && categories.length >= 0 && (
             <div className="space-y-10 animate-fade-in">
               <div className="text-left space-y-2">
                 <h2 className="text-[44px] font-bold text-[#fb5711]">
@@ -163,7 +169,7 @@ export default function ProjectBreakdown() {
                     <Button
                       variant="outline"
                       size="sm"
-                      disabled={isEditingDescription}
+                      // disabled={isEditingDescription}
                       onClick={generateAgainHandler}
                       className="text-[#fb5711] border-[#fb5711] hover:bg-[#fb5711]/10"
                     >
@@ -174,6 +180,7 @@ export default function ProjectBreakdown() {
                   {description ? (
                     <Textarea
                       value={description}
+                      disabled={!isEditingDescription}
                       onChange={(e) => setDescription(e.target.value)}
                       className="min-h-32 border-[#fb5711]/30 focus:border-[#fb5711] text-sm"
                     />

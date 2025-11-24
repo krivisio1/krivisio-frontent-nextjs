@@ -48,7 +48,8 @@ export interface ChatBotContextType {
   setSRSContent: React.Dispatch<React.SetStateAction<string | null>>;
 
   // --- Actions ---
-  generateProjectBreakdown: (message: string) => Promise<void>;
+  generateProjectBreakdown: (message: string, title: string) => Promise<void>;
   handleSelectCategory: (category: string, content: string) => void;
   generateSrs: () => void;
+  updateProjectData: () => void;
 }
