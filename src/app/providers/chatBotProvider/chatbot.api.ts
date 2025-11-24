@@ -34,6 +34,8 @@ export async function getProjectDetailsApi(
   return res?.data?.data;
 }
 
+export async function getAllProjectsApi() {}
+
 export async function generateSrsApi(axios: AxiosInstance, prompt: string) {
   const res = await axios.post("/api/chatbot/project/srs", {
     prompt,

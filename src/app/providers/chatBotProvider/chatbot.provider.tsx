@@ -101,7 +101,7 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
 
         setTitle(res.project_title);
         setDescription(res.description);
-        setCategories([]);
+        setCategories(JSON.parse(res.breakdown));
         setSelectedCategory("");
         setSelectedCategoryContent("");
         setStep("categories"); // Go directly to categories page
