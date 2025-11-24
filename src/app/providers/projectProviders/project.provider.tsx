@@ -35,21 +35,28 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [editableDescription, setEditableDescription] = useState(description);
   const [srsContent, setSRSContent] = useState<string | null>(null);
-  const [page , setPage] = useState(1)
-  const [perpage , setPerpage] = useState(10)
+  const [page, setPage] = useState(1);
+  const [perpage, setPerpage] = useState(10);
 
   const { axios } = useAxios();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const{
-    data: projectsData, isLoading , refetch : loadProjects
+  const {
+    data: projectsData,
+    isLoading,
+    refetch: loadProjects,
   } = useQuery({
     queryKey: ["items", page, perpage],
-    queryFn: () => getAllProjectApi(axios, page, perpage),
+    queryFn: async () => {
+      const res = await getAllProjectApi(axios, page, perpage);
+      console.log(res);
+
+      return res;
+    },
   });
-  console.log({projectsData});
-  console.log("hello bro")
+  console.log({ projectsData });
+  console.log("hello bro");
 
   async function generateProjectBreakdown(message: string, p_title: string) {
     if (!message.trim() || !p_title.trim()) {
