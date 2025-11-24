@@ -66,6 +66,7 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const res = await updateProjectApi(axios, title, description, projectId);
+      loadProject();
     } catch (err) {
       console.log(err);
       toast.error("Failed to load project.");
@@ -91,26 +92,25 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
     setSelectedCategoryContent(content);
   };
 
-  useEffect(() => {
+  async function loadProject() {
     const projectId = searchParams.get("project_id");
     if (!projectId) return;
+    try {
+      const res = await getProjectDetailsApi(axios, projectId!);
 
-    async function loadProject() {
-      try {
-        const res = await getProjectDetailsApi(axios, projectId!);
-
-        setTitle(res.project_title);
-        setDescription(res.description);
-        setCategories(JSON.parse(res.breakdown));
-        setSelectedCategory("");
-        setSelectedCategoryContent("");
-        setStep("categories"); // Go directly to categories page
-      } catch (err) {
-        console.log(err);
-        toast.error("Failed to load project.");
-      }
+      setTitle(res.project_title);
+      setDescription(res.description);
+      setCategories(JSON.parse(res.breakdown));
+      setSelectedCategory("");
+      setSelectedCategoryContent("");
+      setStep("categories"); // Go directly to categories page
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to load project.");
     }
+  }
 
+  useEffect(() => {
     loadProject();
   }, [searchParams]);
 
