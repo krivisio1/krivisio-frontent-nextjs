@@ -1,5 +1,5 @@
 import { AxiosInstance } from "axios";
-import { CategoryData } from "./chatbot.types";
+import { CategoryData } from "./project.types";
 
 export async function projectBreakdownApi(
   axios: AxiosInstance,

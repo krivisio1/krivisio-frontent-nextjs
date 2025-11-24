@@ -1,6 +1,6 @@
 // app/(dashboard)/layout.tsx
 "use client";
-import { ChatBotProvider } from "@/app/providers/chatBotProvider/chatbot.provider";
+import { ChatBotProvider } from "@/app/providers/projectProviders/project.provider";
 import { ExactSidebar } from "@/app/management/dashboard/partials/ExactSidebar";
 import { useSupabase } from "@/services/supabase/supabase.hook";
 import { ScreenLoader } from "@/components/loader";

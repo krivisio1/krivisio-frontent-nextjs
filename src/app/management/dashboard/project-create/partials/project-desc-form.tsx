@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useChatbot } from "@/app/providers/chatBotProvider/chatbot.context";
+import { useChatbot } from "@/app/providers/projectProviders/project.context";
 
 const projectSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),

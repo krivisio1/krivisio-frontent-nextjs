@@ -1,20 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChatBotContext } from "./chatbot.context";
+import { ChatBotContext } from "./project.context";
 import { useAxios } from "@/services/axios/axios.hook";
 import {
   generateSrsApi,
   getProjectDetailsApi,
   projectBreakdownApi,
   updateProjectApi,
-} from "./chatbot.api";
+} from "./project.api";
 import {
   CategoryData,
   Project,
   Step,
   ChatBotContextType,
-} from "./chatbot.types";
+} from "./project.types";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
 

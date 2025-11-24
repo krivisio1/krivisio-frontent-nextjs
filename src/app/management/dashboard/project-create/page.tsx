@@ -15,8 +15,8 @@ import {
   CategoryData,
   Project,
   Step,
-} from "@/app/providers/chatBotProvider/chatbot.types";
-import { useChatbot } from "@/app/providers/chatBotProvider/chatbot.context";
+} from "@/app/providers/projectProviders/project.types";
+import { useChatbot } from "@/app/providers/projectProviders/project.context";
 import { Description } from "@radix-ui/react-dialog";
 
 export default function ProjectBreakdown() {

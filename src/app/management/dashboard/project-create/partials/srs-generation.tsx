@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { MarkdownRenderer } from "./markdown-render";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useChatbot } from "@/app/providers/chatBotProvider/chatbot.context";
+import { useChatbot } from "@/app/providers/projectProviders/project.context";
 
 interface SRSGenerationDialogProps {
   additionalInstructions: string;

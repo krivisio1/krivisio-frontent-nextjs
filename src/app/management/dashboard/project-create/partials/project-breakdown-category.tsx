@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MarkdownRenderer } from "./markdown-render";
-import { useChatbot } from "@/app/providers/chatBotProvider/chatbot.context";
+import { useChatbot } from "@/app/providers/projectProviders/project.context";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
