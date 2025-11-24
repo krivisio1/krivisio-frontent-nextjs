@@ -14,11 +14,13 @@ export async function projectBreakdownApi(
 }
 
 export async function getAllProjectApi(
-axios: AxiosInstance,
-page : number,
-perpage : number,
-){
-  const res = await axios.get(`/api/projects/?page=${page}&per_page=${perpage}`);
+  axios: AxiosInstance,
+  page: number,
+  perpage: number,
+) {
+  const res = await axios.get(
+    `/api/projects/?page=${page}&per_page=${perpage}`,
+  );
   return res?.data?.data;
 }
 
@@ -45,9 +47,16 @@ export async function getProjectDetailsApi(
 
 export async function getAllProjectsApi() {}
 
-export async function generateSrsApi(axios: AxiosInstance, prompt: string) {
+export async function generateSrsApi(
+  axios: AxiosInstance,
+  additionalInstructions: string,
+  selectedCategoryContent: string,
+  selectedCategory: string,
+) {
   const res = await axios.post("/api/chatbot/project/srs", {
-    prompt,
+    content: additionalInstructions,
+    category_selected: selectedCategory,
+    category_content: selectedCategoryContent,
   });
   return res?.data?.data;
 }

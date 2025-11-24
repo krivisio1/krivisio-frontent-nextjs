@@ -94,6 +94,11 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function generateSrs() {
+    console.log({ selectedCategoryContent });
+    if (!selectedCategoryContent.trim()) {
+      toast.error("Please select a category to generate SRS.");
+      return;
+    }
     try {
       const res = await generateSrsApi(axios, selectedCategoryContent);
 
