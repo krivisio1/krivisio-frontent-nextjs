@@ -5,6 +5,7 @@ import { ChatBotContext } from "./project.context";
 import { useAxios } from "@/services/axios/axios.hook";
 import {
   generateSrsApi,
+  getAllProjectApi,
   getProjectDetailsApi,
   projectBreakdownApi,
   updateProjectApi,
@@ -17,6 +18,7 @@ import {
 } from "./project.types";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 export function ChatBotProvider({ children }: { children: React.ReactNode }) {
   const [step, setStep] = useState<Step>("description");
@@ -33,10 +35,21 @@ export function ChatBotProvider({ children }: { children: React.ReactNode }) {
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [editableDescription, setEditableDescription] = useState(description);
   const [srsContent, setSRSContent] = useState<string | null>(null);
+  const [page , setPage] = useState(1)
+  const [perpage , setPerpage] = useState(10)
 
   const { axios } = useAxios();
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const{
+    data: projectsData, isLoading , refetch : loadProjects
+  } = useQuery({
+    queryKey: ["items", page, perpage],
+    queryFn: () => getAllProjectApi(axios, page, perpage),
+  });
+  console.log({projectsData});
+  console.log("hello bro")
 
   async function generateProjectBreakdown(message: string, p_title: string) {
     if (!message.trim() || !p_title.trim()) {

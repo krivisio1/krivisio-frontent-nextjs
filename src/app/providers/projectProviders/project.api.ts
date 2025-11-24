@@ -13,6 +13,15 @@ export async function projectBreakdownApi(
   return res?.data?.data;
 }
 
+export async function getAllProjectApi(
+axios: AxiosInstance,
+page : number,
+perpage : number,
+){
+  const res = await axios.get(`/api/projects/?page=${page}&per_page=${perpage}`);
+  return res?.data?.data;
+}
+
 export async function updateProjectApi(
   axios: AxiosInstance,
   title: string,
